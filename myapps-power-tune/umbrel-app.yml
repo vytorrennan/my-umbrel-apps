@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-power-tune
 category: automation
 name: Power Tune
-version: "1.0.0"
+version: "1.0.1"
 tagline: Applies and monitors host power-saving tweaks
 description: >-
   Runs custom power-tuning scripts directly on the host (not inside a
