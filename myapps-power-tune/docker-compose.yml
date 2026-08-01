@@ -1,7 +1,6 @@
 services:
   web:
-    build: .
-    image: myapps-power-tune:1.0.0
+    image: docker.io/vytor/power-tune:1.0.0
     container_name: power-tune
     restart: unless-stopped
     privileged: true
