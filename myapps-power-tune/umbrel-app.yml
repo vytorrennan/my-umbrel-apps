@@ -1,0 +1,22 @@
+manifestVersion: 1
+id: myapps-power-tune
+category: automation
+name: Power Tune
+version: "1.0.0"
+tagline: Applies and monitors host power-saving tweaks
+description: >-
+  Runs custom power-tuning scripts directly on the host (not inside a
+  container) at startup, then periodically re-checks that the tuning is
+  still applied. Installed as a proper app so it survives reboots and
+  umbrelOS updates.
+developer: you
+website: https://github.com/vytorrennan/my-umbrel-apps
+submitter: you
+submission: https://github.com/vytorrennan/my-umbrel-apps
+repo: https://github.com/vytorrennan/my-umbrel-apps
+support: https://github.com/vytorrennan/my-umbrel-apps/issues
+port: 3999
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

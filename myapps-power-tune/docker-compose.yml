@@ -1,0 +1,11 @@
+services:
+  web:
+    build: .
+    image: myapps-power-tune:1.0.0
+    container_name: power-tune
+    restart: unless-stopped
+    privileged: true
+    pid: host
+    stop_grace_period: 5s
+    environment:
+      - CHECK_INTERVAL=300
