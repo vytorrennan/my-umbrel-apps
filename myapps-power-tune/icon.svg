@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1254" height="1254" viewBox="0 0 1254 1254" role="img" aria-labelledby="title desc">
+  <title id="title">Eco energy download icon</title>
+  <desc id="desc">A neon green energy-efficient computer chip with a lightning bolt, leaf, download badge, and utility symbols on a dark rounded square.</desc>
+
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#121820"/>
+      <stop offset="0.52" stop-color="#0b1118"/>
+      <stop offset="1" stop-color="#070d13"/>
+    </linearGradient>
+    <radialGradient id="tileGlow" cx="50%" cy="47%" r="56%">
+      <stop offset="0" stop-color="#15251d" stop-opacity=".7"/>
+      <stop offset=".55" stop-color="#0b1419" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#05090d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#eff2f1"/>
+      <stop offset=".18" stop-color="#a8afb4"/>
+      <stop offset=".48" stop-color="#505962"/>
+      <stop offset=".72" stop-color="#27313a"/>
+      <stop offset="1" stop-color="#69727b"/>
+    </linearGradient>
+    <linearGradient id="metalEdge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#cbd0d2"/>
+      <stop offset=".38" stop-color="#67717a"/>
+      <stop offset=".7" stop-color="#232d36"/>
+      <stop offset="1" stop-color="#929ba2"/>
+    </linearGradient>
+    <linearGradient id="lime" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#d9ff43"/>
+      <stop offset=".42" stop-color="#8df51c"/>
+      <stop offset="1" stop-color="#45bc22"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a7ff32"/>
+      <stop offset=".45" stop-color="#61d51d"/>
+      <stop offset="1" stop-color="#2a9e25"/>
+    </linearGradient>
+    <radialGradient id="badge" cx="37%" cy="28%" r="90%">
+      <stop offset="0" stop-color="#182329"/>
+      <stop offset=".58" stop-color="#0c151a"/>
+      <stop offset="1" stop-color="#070d12"/>
+    </radialGradient>
+    <filter id="greenGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="13" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.38  0 0 0 0 1  0 0 0 0 0.08  0 0 0 .9 0"/>
+    </filter>
+    <filter id="smallGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.42  0 0 0 0 1  0 0 0 0 0.1  0 0 0 .85 0"/>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+    <clipPath id="tileClip">
+      <rect x="65" y="62" width="1124" height="1126" rx="300"/>
+    </clipPath>
+    <path id="ringTop" d="M 769 235 C 626 174 464 191 344 288 C 235 376 183 505 207 648 C 222 747 264 840 316 910"/>
+    <path id="ringRight" d="M 975 397 C 1033 479 1061 575 1058 669 C 1055 761 1017 852 946 912"/>
+    <path id="ringBottom" d="M 421 1024 C 534 1083 687 1100 824 1023"/>
+  </defs>
+
+  <!-- Dark app tile -->
+  <rect x="65" y="62" width="1124" height="1126" rx="300" fill="url(#tile)" stroke="#202a35" stroke-width="3"/>
+  <rect x="66.5" y="63.5" width="1121" height="1123" rx="298" fill="url(#tileGlow)" clip-path="url(#tileClip)"/>
+  <path d="M364 64H890C1054 64 1188 198 1188 362" fill="none" stroke="#303a46" stroke-opacity=".55" stroke-width="2"/>
+
+  <!-- Neon recycling/efficiency ring -->
+  <g fill="none" stroke="url(#lime)" stroke-width="26" stroke-linecap="round">
+    <g opacity=".8" filter="url(#greenGlow)" stroke="#73f21f">
+      <use href="#ringTop"/>
+      <use href="#ringRight"/>
+      <use href="#ringBottom"/>
+    </g>
+    <use href="#ringTop"/>
+    <use href="#ringRight"/>
+    <use href="#ringBottom"/>
+  </g>
+
+  <!-- Leaf -->
+  <g>
+    <path d="M798 439C764 400 760 350 779 307C803 253 862 225 967 225C964 324 949 381 908 416C875 444 835 452 798 450Z" fill="url(#leaf)"/>
+    <path d="M798 439C817 382 854 327 900 292C855 316 812 360 786 409" fill="none" stroke="#268b27" stroke-width="8" stroke-linecap="round" opacity=".85"/>
+    <path d="M789 318C820 268 874 238 951 231" fill="none" stroke="#c1ff4e" stroke-opacity=".35" stroke-width="4"/>
+  </g>
+
+  <!-- Chip pins, behind the chip body -->
+  <g fill="none" stroke="url(#metal)" stroke-width="18" stroke-linecap="round">
+    <path d="M496 349V408M553 349V408M610 349V408M667 349V408"/>
+    <path d="M348 499H405M348 556H405M348 613H405M348 670H405"/>
+    <path d="M753 499H815M753 556H815"/>
+    <path d="M496 761V821M553 761V821M610 761V821"/>
+  </g>
+  <g fill="none" stroke="#151d24" stroke-opacity=".65" stroke-width="4" stroke-linecap="round">
+    <path d="M496 350V408M553 350V408M610 350V408M667 350V408"/>
+    <path d="M349 500H405M349 557H405M349 614H405M349 671H405"/>
+  </g>
+
+  <!-- Main processor -->
+  <rect x="394" y="402" width="376" height="370" rx="67" fill="url(#badge)" stroke="url(#metal)" stroke-width="18"/>
+  <rect x="411" y="419" width="342" height="336" rx="50" fill="none" stroke="#151d24" stroke-width="3" opacity=".9"/>
+  <path d="M462 413H703C738 413 762 440 762 475" fill="none" stroke="#f1f3f1" stroke-opacity=".32" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Processor lightning bolt glow -->
+  <path d="M624 457L489 622H568L536 736L678 573H594Z" fill="#8cff21" filter="url(#greenGlow)"/>
+  <path d="M624 457L489 622H568L536 736L678 573H594Z" fill="url(#lime)" stroke="#bdff53" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- Download badge -->
+  <circle cx="782" cy="730" r="129" fill="#162027" opacity=".55" filter="url(#softShadow)"/>
+  <circle cx="782" cy="730" r="129" fill="url(#badge)" stroke="url(#metalEdge)" stroke-width="9"/>
+  <circle cx="782" cy="730" r="117" fill="none" stroke="#101820" stroke-width="3"/>
+  <g fill="none" stroke="#8dff20" stroke-linecap="round">
+    <g filter="url(#smallGlow)" stroke="#7dff19" stroke-width="17">
+      <path d="M750 663H814M750 697H814M750 731H814"/>
+      <path d="M745 758H819M782 730V801"/>
+    </g>
+    <path d="M750 663H814M750 697H814M750 731H814" stroke-width="14"/>
+  </g>
+  <path d="M745 757H819L782 801Z" fill="url(#lime)" stroke="#c0ff47" stroke-width="3" stroke-linejoin="round"/>
+
+  <!-- Bottom utility symbols -->
+  <g fill="none" stroke="url(#metal)" stroke-width="9" stroke-linecap="round">
+    <!-- Wi-Fi disabled -->
+    <path d="M357 926C384 897 430 891 461 924"/>
+    <path d="M372 945C393 924 422 921 445 944"/>
+    <path d="M387 963C398 952 414 951 425 963"/>
+  </g>
+  <circle cx="406" cy="976" r="10" fill="url(#metal)"/>
+  <path d="M358 899L445 985" fill="none" stroke="#95ff22" stroke-width="9" stroke-linecap="round"/>
+
+  <path d="M490 896V989M628 896V989M780 896V989" stroke="#56616b" stroke-width="3"/>
+
+  <!-- Bluetooth disabled -->
+  <path d="M554 896L586 926L554 953V896L586 926L552 967V953" fill="none" stroke="url(#metal)" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M535 899L594 970" fill="none" stroke="#8fff21" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Battery -->
+  <rect x="687" y="888" width="52" height="9" rx="4" fill="url(#metal)"/>
+  <rect x="668" y="899" width="74" height="101" rx="10" fill="url(#metalEdge)"/>
+  <rect x="677" y="908" width="56" height="83" rx="4" fill="#111a20" stroke="#121a20" stroke-width="3"/>
+  <path d="M696 898V890H715V898" fill="none" stroke="url(#metal)" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M707 922L690 950H701L696 974L720 944H708Z" fill="url(#lime)" stroke="#baff4b" stroke-width="2" stroke-linejoin="round" filter="url(#smallGlow)"/>
+  <path d="M707 922L690 950H701L696 974L720 944H708Z" fill="url(#lime)" stroke="#baff4b" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- Gear -->
+  <g transform="translate(859 946)" fill="url(#metal)">
+    <g>
+      <rect x="-11" y="-58" width="22" height="33" rx="5"/>
+      <rect x="-11" y="25" width="22" height="33" rx="5" transform="rotate(180)"/>
+      <rect x="-11" y="-58" width="22" height="33" rx="5" transform="rotate(45)"/>
+      <rect x="-11" y="-58" width="22" height="33" rx="5" transform="rotate(90)"/>
+      <rect x="-11" y="-58" width="22" height="33" rx="5" transform="rotate(135)"/>
+      <rect x="-11" y="-58" width="22" height="33" rx="5" transform="rotate(180)"/>
+      <rect x="-11" y="-58" width="22" height="33" rx="5" transform="rotate(225)"/>
+      <rect x="-11" y="-58" width="22" height="33" rx="5" transform="rotate(270)"/>
+      <rect x="-11" y="-58" width="22" height="33" rx="5" transform="rotate(315)"/>
+    </g>
+    <circle r="48"/>
+    <circle r="25" fill="#0c151a"/>
+    <circle r="31" fill="none" stroke="#313b43" stroke-width="7"/>
+  </g>
+</svg>
