@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-power-tune
 category: automation
 name: Power Tune
-version: "1.0.7"
+version: "1.0.8"
 tagline: Applies and monitors host power-saving tweaks
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-power-tune/icon.png
 description: >-
@@ -10,9 +10,9 @@ description: >-
   container) at startup, then periodically re-checks that the tuning is
   still applied. Installed as a proper app so it survives reboots and
   umbrelOS updates.
-developer: you
+developer: vytorrennan
 website: https://github.com/vytorrennan/my-umbrel-apps
-submitter: you
+submitter: vytorrennan
 submission: https://github.com/vytorrennan/my-umbrel-apps
 repo: https://github.com/vytorrennan/my-umbrel-apps
 support: https://github.com/vytorrennan/my-umbrel-apps/issues

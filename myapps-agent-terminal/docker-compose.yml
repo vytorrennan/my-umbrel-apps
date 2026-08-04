@@ -1,0 +1,19 @@
+services:
+  app_proxy:
+    environment:
+      APP_HOST: agent-terminal_web_1
+      APP_PORT: 7681
+
+  web:
+    image: ${APP_ID}_web
+    build: .
+    restart: on-failure
+    stop_grace_period: 1m
+    environment:
+      - TTYD_CREDENTIAL=${APP_AGENT_TERMINAL_TTYD_CREDENTIAL:-}
+    volumes:
+      # persists CLI configs, auth tokens, ssh keys, herdr config, etc.
+      - ${APP_DATA_DIR}/data/home:/root
+      # your actual code lives here so it survives container rebuilds
+      - ${APP_DATA_DIR}/data/workspace:/workspace
+      - /home/umbrel/umbrel/home/Projects:/root/Projects
