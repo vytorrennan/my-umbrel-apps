@@ -97,6 +97,10 @@ RUN mkdir -p /home/developer/Projects
 
 USER root
 
+# Copy templates to /etc/skel/ so entrypoint can auto-heal existing persistent volumes
+COPY .zshrc /etc/skel/.zshrc
+COPY .p10k.zsh /etc/skel/.p10k.zsh
+
 # Copy caw binary from backend-builder
 COPY --from=backend-builder /caw /usr/local/bin/caw
 RUN chmod +x /usr/local/bin/caw
