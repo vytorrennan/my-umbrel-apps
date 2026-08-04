@@ -1,7 +1,7 @@
 services:
   app_proxy:
     environment:
-      APP_HOST: agent-terminal_web_1
+      APP_HOST: myapps-agent-terminal_web_1
       APP_PORT: 7681
 
   web:
@@ -10,7 +10,7 @@ services:
     restart: on-failure
     stop_grace_period: 1m
     environment:
-      - TTYD_CREDENTIAL=${APP_AGENT_TERMINAL_TTYD_CREDENTIAL:-}
+      - TTYD_CREDENTIAL=${APP_MYAPPS_AGENT_TERMINAL_TTYD_CREDENTIAL:-}
     volumes:
       # persists CLI configs, auth tokens, ssh keys, herdr config, etc.
       - ${APP_DATA_DIR}/data/home:/root
