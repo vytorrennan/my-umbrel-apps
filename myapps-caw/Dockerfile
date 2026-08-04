@@ -2,6 +2,8 @@
 FROM node:22-bookworm AS frontend-builder
 WORKDIR /app
 RUN git clone --depth=1 https://github.com/04mg/caw .
+# Patch terminalRegistry.ts to enable auto-copying on text selection & rightClickSelectsWord
+RUN python3 -c "path='src/frontend/src/features/terminal/services/terminalRegistry.ts'; code=open(path).read(); code=code.replace('theme,\n  })', 'theme, rightClickSelectsWord: true,\n  })\n  term.onSelectionChange(() => { const sel = term.getSelection(); if (sel && navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(sel).catch(() => {}); } })'); open(path, 'w').write(code)"
 RUN cd src/frontend && npm ci && npm run build
 
 # Stage 2: Build Go Backend
@@ -41,6 +43,12 @@ RUN (userdel -r ubuntu 2>/dev/null || true) && \
     useradd -m -s /usr/bin/zsh -u 1000 developer && \
     echo "developer ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/developer && \
     chmod 0440 /etc/sudoers.d/developer
+
+# Create default .zshrc to prevent zsh-newuser-install prompt
+RUN echo 'export PATH="/home/developer/.local/bin:/home/developer/.fnm/aliases/default/bin:/home/developer/.fnm/current/bin:/usr/local/bin:$PATH"' > /home/developer/.zshrc && \
+    echo 'export TERM=xterm-256color' >> /home/developer/.zshrc && \
+    echo 'alias ll="ls -la"' >> /home/developer/.zshrc && \
+    chown developer:developer /home/developer/.zshrc
 
 # Install Antigravity CLI (agy) system-wide
 RUN curl -fsSL https://antigravity.google/cli/install.sh | bash || true && \
