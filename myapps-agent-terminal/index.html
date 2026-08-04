@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Agent Terminal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@nerdfonts/ttf@3.2.1/FiraCode/font.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@nerdfonts/ttf@3.2.1/JetBrainsMono/font.css">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #0e131f !important;
+            overflow: hidden;
+            font-family: 'FiraCode Nerd Font', 'JetBrainsMono Nerd Font', 'Fira Code', 'JetBrains Mono', monospace;
+        }
+        #terminal-container {
+            width: 100%;
+            height: 100%;
+            background-color: #0e131f !important;
+            box-sizing: border-box;
+            padding: 4px;
+        }
+        .terminal, .xterm-viewport, .xterm-screen, .xterm-helpers {
+            background-color: #0e131f !important;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0e131f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal-container"></div>
+</body>
+</html>

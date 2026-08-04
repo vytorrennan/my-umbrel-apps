@@ -63,9 +63,10 @@ RUN git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git /home/developer/.
     git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting /home/developer/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting && \
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/developer/.oh-my-zsh/custom/themes/powerlevel10k
 
-# Copy Zsh configs
+# Copy Zsh configs & custom ttyd index.html
 COPY --chown=developer:developer .zshrc /home/developer/.zshrc
 COPY --chown=developer:developer .p10k.zsh /home/developer/.p10k.zsh
+COPY --chown=developer:developer index.html /home/developer/index.html
 
 # Create Projects folder
 RUN mkdir -p /home/developer/Projects
