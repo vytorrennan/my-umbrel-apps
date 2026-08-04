@@ -19,18 +19,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # --- sane root shell: color prompt, color ls, tab completion -----------
-# (written with printf, not a heredoc, so this builds under the classic
-# docker builder too, not just BuildKit)
 RUN printf '%s\n' \
     "" \
     "alias ls='ls --color=auto'" \
     "alias ll='ls -alF --color=auto'" \
     "alias grep='grep --color=auto'" \
-    "PS1='\\[\\033[01;32m\\]\\u@agent-terminal\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '" \
+    "export TERM=xterm-256color" \
+    "export COLORTERM=truecolor" \
+    "export PATH=/usr/local/bin:/root/.local/bin:\$PATH" \
+    "PS1='\[\033[01;32m\]\u@agent-terminal\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '" \
     "if [ -f /etc/bash_completion ] && ! shopt -oq posix; then" \
     "  . /etc/bash_completion" \
     "fi" \
-    >> /root/.bashrc
+    >> /etc/bash.bashrc
 
 # --- Node.js 22 (required by Codex CLI / Antigravity CLI) --------------
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
@@ -55,7 +56,8 @@ RUN curl -fsSL https://herdr.dev/install.sh | sh
 RUN npm install -g @openai/codex
 
 # --- Antigravity CLI (Google) --------------------------------------------
-RUN curl -fsSL https://antigravity.google/cli/install.sh | bash
+RUN curl -fsSL https://antigravity.google/cli/install.sh | bash \
+    && cp -f /root/.local/bin/agy /usr/local/bin/agy 2>/dev/null || true
 
 WORKDIR /workspace
 
