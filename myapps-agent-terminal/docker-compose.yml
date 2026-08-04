@@ -1,6 +1,5 @@
 services:
   app_proxy:
-    image: ghcr.io/getumbrel/app-proxy:v1.3.0
     environment:
       APP_HOST: myapps-agent-terminal_web_1
       APP_PORT: 7681
