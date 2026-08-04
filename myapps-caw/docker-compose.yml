@@ -1,0 +1,17 @@
+services:
+  web:
+    image: docker.io/vytor/caw:1.0.0
+    container_name: caw
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /home/umbrel/umbrel/home/Projects:/home/developer/Projects
+      - caw-data:/home/developer
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8080
+      - TERM=xterm-256color
+
+volumes:
+  caw-data:

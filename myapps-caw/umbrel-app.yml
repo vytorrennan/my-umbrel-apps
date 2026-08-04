@@ -1,0 +1,22 @@
+manifestVersion: 1
+id: myapps-caw
+category: developer
+name: Caw
+version: "1.0.0"
+tagline: Web interface for AI agents
+icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-caw/icon.svg
+description: >-
+  Caw is a web interface for AI coding agents (Claude Code, Codex CLI, Antigravity,
+  OpenCode, Pi, Oh My Pi, Hermes). Run agents in browser terminal panes, monitor
+  real-time state on a live Kanban board, isolate parallel git worktrees, and track usage quotas.
+developer: 04mg
+website: https://github.com/04mg/caw
+submitter: vytorrennan
+submission: https://github.com/vytorrennan/my-umbrel-apps
+repo: https://github.com/vytorrennan/my-umbrel-apps
+support: https://github.com/04mg/caw/issues
+port: 8080
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
