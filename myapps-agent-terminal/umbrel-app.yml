@@ -2,28 +2,21 @@ manifestVersion: 1
 id: myapps-agent-terminal
 category: developer
 name: Agent Terminal
-version: "1.0.2"
-tagline: Herdr, Codex CLI & Antigravity CLI in one browser terminal
+version: "1.0.0"
+tagline: Browser terminal with Herdr multiplexer, Codex CLI & Antigravity CLI
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-terminal/icon.jpg
 description: >-
-  A browser-based terminal (powered by ttyd) that drops you straight into
-  Herdr, a terminal multiplexer built for supervising multiple AI coding
-  agents at once. Codex CLI and Antigravity CLI are pre-installed, so you
-  can launch either as a herdr pane and watch its status (working, blocked,
-  done) from the sidebar without leaving the browser.
-
-
-  Security note: this container gives anyone who can load its page a real
-  shell. Set a ttyd credential (see README) and only expose it through a
-  VPN / Tailscale / Umbrel's own remote access — never forward this port
-  to the open internet.
+  A feature-packed web terminal that opens directly into Herdr with pre-installed
+  Codex CLI (@openai/codex) and Antigravity CLI (agy). Built for developers with
+  passwordless sudo, fnm (Node LTS), Python LTS (uv, pip), build-essential, and custom Zsh.
 developer: vytorrennan
 website: https://github.com/vytorrennan/my-umbrel-apps
-dependencies: []
+submitter: vytorrennan
+submission: https://github.com/vytorrennan/my-umbrel-apps
 repo: https://github.com/vytorrennan/my-umbrel-apps
 support: https://github.com/vytorrennan/my-umbrel-apps/issues
 port: 7681
 gallery: []
-releaseNotes: Initial release.
-submitter: vytorrennan
-submission: https://github.com/vytorrennan/my-umbrel-apps
+path: ""
+defaultUsername: ""
+defaultPassword: ""

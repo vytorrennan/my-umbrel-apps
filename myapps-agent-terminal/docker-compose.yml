@@ -1,18 +1,15 @@
 services:
-  app_proxy:
-    environment:
-      APP_HOST: myapps-agent-terminal_web_1
-      APP_PORT: 7681
-
   web:
     image: docker.io/vytor/agent-terminal:1.0.0
-    restart: on-failure
-    stop_grace_period: 1m
-    environment:
-      - TTYD_CREDENTIAL=${APP_MYAPPS_AGENT_TERMINAL_TTYD_CREDENTIAL:-}
+    container_name: agent-terminal
+    restart: unless-stopped
+    ports:
+      - "7681:7681"
     volumes:
-      # persists CLI configs, auth tokens, ssh keys, herdr config, etc.
-      - ${APP_DATA_DIR}/data/home:/root
-      # your actual code lives here so it survives container rebuilds
-      - ${APP_DATA_DIR}/data/workspace:/workspace
-      - /home/umbrel/umbrel/home/Projects:/root/Projects
+      - /home/umbrel/umbrel/home/Projects:/home/developer/Projects
+      - agent-terminal-data:/home/developer
+    environment:
+      - TERM=xterm-256color
+
+volumes:
+  agent-terminal-data:
