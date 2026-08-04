@@ -3,7 +3,7 @@ FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=xterm-256color
 
-# Install system dependencies and build-essential
+# Install system dependencies, build-essential, and fontconfig
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
@@ -17,11 +17,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fzf \
     procps \
     ca-certificates \
+    fontconfig \
+    fonts-jetbrains-mono \
     python3 \
     python3-pip \
     python3-venv \
     ttyd \
     && rm -rf /var/lib/apt-get/lists/*
+
+# Install JetBrains Mono Nerd Font
+RUN mkdir -p /usr/local/share/fonts/JetBrainsMono && \
+    curl -fsSL https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip -o /tmp/jb.zip && \
+    unzip -q /tmp/jb.zip -d /usr/local/share/fonts/JetBrainsMono && \
+    rm /tmp/jb.zip && \
+    fc-cache -f
 
 # Delete existing default ubuntu user (UID 1000) and create developer user with passwordless sudo
 RUN (userdel -r ubuntu 2>/dev/null || true) && \

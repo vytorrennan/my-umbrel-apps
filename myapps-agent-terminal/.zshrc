@@ -1,3 +1,6 @@
+# Quiet p10k instant prompt warning
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+
 # Enable Powerlevel10k instant prompt
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -6,10 +9,10 @@ fi
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-ENABLE_CORRECTION="true"
+ENABLE_CORRECTION="false"
 COMPLETION_WAITING_DOTS="true"
 
-# Disable omz fzf plugin auto-sourcing to avoid debian path notice
+# Disable omz fzf plugin auto-sourcing
 DISABLE_FZF_AUTO_COMPLETION="true"
 DISABLE_FZF_KEY_BINDINGS="true"
 
