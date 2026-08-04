@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-agent-terminal
 category: developer
 name: Agent Terminal
-version: "1.0.0"
+version: "1.0.1"
 tagline: Herdr, Codex CLI & Antigravity CLI in one browser terminal
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-terminal/icon.jpg
 description: >-
