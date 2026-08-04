@@ -2,14 +2,35 @@ FROM debian:stable-slim
 
 ENV DEBIAN_FRONTEND=noninteractive \
     HOME=/root \
+    SHELL=/bin/bash \
+    TERM=xterm-256color \
+    COLORTERM=truecolor \
+    LANG=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
     HERDR_INSTALL_DIR=/usr/local/bin \
     PATH=/usr/local/bin:/root/.local/bin:$PATH
 
 # --- base packages -----------------------------------------------------
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl ca-certificates gnupg git openssh-client \
-        procps less nano tini build-essential\
+        procps less nano tini locales bash-completion build-essential \
+    && sed -i '/en_US.UTF-8/s/^# //' /etc/locale.gen \
+    && locale-gen \
     && rm -rf /var/lib/apt/lists/*
+
+# --- sane root shell: color prompt, color ls, tab completion -----------
+# (written with printf, not a heredoc, so this builds under the classic
+# docker builder too, not just BuildKit)
+RUN printf '%s\n' \
+    "" \
+    "alias ls='ls --color=auto'" \
+    "alias ll='ls -alF --color=auto'" \
+    "alias grep='grep --color=auto'" \
+    "PS1='\\[\\033[01;32m\\]\\u@agent-terminal\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '" \
+    "if [ -f /etc/bash_completion ] && ! shopt -oq posix; then" \
+    "  . /etc/bash_completion" \
+    "fi" \
+    >> /root/.bashrc
 
 # --- Node.js 22 (required by Codex CLI / Antigravity CLI) --------------
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
