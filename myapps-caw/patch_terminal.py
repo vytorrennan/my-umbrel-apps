@@ -4,22 +4,44 @@ import os
 reg_path = 'src/frontend/src/features/terminal/services/terminalRegistry.ts'
 panel_path = 'src/frontend/src/features/terminal/components/TerminalPanel.tsx'
 css_path = 'src/frontend/src/index.css'
+ws_store_path = 'src/frontend/src/features/workspaces/stores/workspaceStore.ts'
 
-# 1. Patch TerminalPanel.tsx to allow touch scrolling when mobile virtual keyboard is visible
+# 1. Patch workspaceStore.ts for real-time multi-device tab & pane synchronization
+if os.path.exists(ws_store_path):
+    ws_code = open(ws_store_path).read()
+    old_equal = 'if (aw.layouts[j].id !== bw.layouts[j].id) return false'
+    new_equal = 'if (aw.layouts[j].id !== bw.layouts[j].id || JSON.stringify(aw.layouts[j].layout) !== JSON.stringify(bw.layouts[j].layout)) return false'
+    ws_code = ws_code.replace(old_equal, new_equal)
+    open(ws_store_path, 'w').write(ws_code)
+    print("Patched workspaceStore.ts for multi-device real-time sync")
+
+# 2. Patch TerminalPanel.tsx to allow touch scrolling on mobile and direct xterm scrollLines
 if os.path.exists(panel_path):
     panel_code = open(panel_path).read()
+    # Remove keyboard open check that blocked touch scrolling
     panel_code = panel_code.replace('if (keyboardOpenRef.current) return\n', '// disabled to allow touch scroll when keyboard open\n')
-    open(panel_path, 'w').write(panel_code)
-    print("Patched TerminalPanel.tsx")
+    
+    # Enhance dispatchWheel to directly scroll xterm viewport lines on touch drag
+    old_dispatch = 'accumDelta += deltaY'
+    new_dispatch = '''const inst = getTerminal(terminalId)
+      if (inst && inst.term) {
+        const lines = Math.trunc(deltaY)
+        if (lines !== 0) inst.term.scrollLines(lines)
+      }
+      accumDelta += deltaY'''
+    panel_code = panel_code.replace(old_dispatch, new_dispatch)
 
-# 2. Patch index.css touch-action
+    open(panel_path, 'w').write(panel_code)
+    print("Patched TerminalPanel.tsx for touch scrolling")
+
+# 3. Patch index.css touch-action
 if os.path.exists(css_path):
     css_code = open(css_path).read()
     css_code = css_code.replace('touch-action: auto !important;', 'touch-action: pan-y !important;')
     open(css_path, 'w').write(css_code)
     print("Patched index.css")
 
-# 3. Patch terminalRegistry.ts for soft-keyboard predictive text / IME composition and keybindings
+# 4. Patch terminalRegistry.ts for soft-keyboard predictive text / IME composition and keybindings
 if os.path.exists(reg_path):
     code = open(reg_path).read()
 

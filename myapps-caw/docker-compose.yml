@@ -1,6 +1,6 @@
 services:
   web:
-    image: docker.io/vytor/caw:1.0.4
+    image: docker.io/vytor/caw:1.0.5
     container_name: caw
     restart: unless-stopped
     ports:
