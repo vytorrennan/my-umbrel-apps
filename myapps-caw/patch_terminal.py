@@ -15,22 +15,98 @@ if os.path.exists(ws_store_path):
     open(ws_store_path, 'w').write(ws_code)
     print("Patched workspaceStore.ts for multi-device real-time sync")
 
-# 2. Patch TerminalPanel.tsx to allow touch scrolling on mobile and direct xterm scrollLines
+# 2. Patch TerminalPanel.tsx to allow touch scrolling on mobile with natural speed & direction
 if os.path.exists(panel_path):
     panel_code = open(panel_path).read()
     # Remove keyboard open check that blocked touch scrolling
     panel_code = panel_code.replace('if (keyboardOpenRef.current) return\n', '// disabled to allow touch scroll when keyboard open\n')
-    
-    # Enhance dispatchWheel to directly scroll xterm viewport lines on touch drag
-    old_dispatch = 'accumDelta += deltaY'
-    new_dispatch = '''const inst = getTerminal(terminalId)
-      if (inst && inst.term) {
-        const lines = Math.trunc(deltaY)
-        if (lines !== 0) inst.term.scrollLines(lines)
-      }
-      accumDelta += deltaY'''
-    panel_code = panel_code.replace(old_dispatch, new_dispatch)
 
+    # Silence TS unused variable check for replaced variables
+    panel_code = panel_code.replace('const beginGrace = () => {', 'void LINES_PER_PX; void FRICTION; void lastX; void dispatchWheel;\n    const beginGrace = () => {')
+
+    # Replace momentum and onTouchMove with natural, fast touch scrolling logic
+    old_touch_block = '''    const momentum = () => {
+      if (Math.abs(velocity) < VELOCITY_THRESHOLD) {
+        rafId = 0
+        beginGrace()
+        return
+      }
+      const delta = velocity * 16 * LINES_PER_PX
+      dispatchWheel(delta, lastX, lastY)
+      velocity *= FRICTION
+      rafId = requestAnimationFrame(momentum)
+    }'''
+
+    new_touch_block = '''    const momentum = () => {
+      if (Math.abs(velocity) < 0.05) {
+        rafId = 0
+        beginGrace()
+        return
+      }
+      const dy = velocity * 16
+      accumDelta += dy
+      const lines = Math.trunc(accumDelta / 14)
+      if (lines !== 0) {
+        accumDelta -= lines * 14
+        const inst = getTerminal(terminalId)
+        if (inst && inst.term) {
+          inst.term.scrollLines(-lines)
+        }
+      }
+      velocity *= 0.85
+      rafId = requestAnimationFrame(momentum)
+    }'''
+
+    panel_code = panel_code.replace(old_touch_block, new_touch_block)
+
+    old_touch_move = '''    const onTouchMove = (e: TouchEvent) => {
+      if (!active || e.touches.length !== 1) return
+      // Stop the event before xterm.js' own touchmove listener (registered on
+      // the inner .xterm element) runs in the bubble phase. xterm's
+      // handleTouchMove scrolls the viewport in raw touch pixels, which fights
+      // our fractional-line wheel synthesis and, for normal-buffer shells with
+      // scrollback, clamps ydisp to a bound on the first drag — leaving
+      // subsequent drags doing nothing. Capturing the event on the outer
+      // container and stopping propagation makes our synthetic wheel the sole
+      // scroll authority for both alt-buffer TUIs (arrow-key / mouse protocol)
+      // and normal-buffer shells (viewport scrollback).
+      e.preventDefault()
+      e.stopPropagation()
+      const t = e.touches[0]
+      const now = Date.now()
+      const dy = lastY - t.clientY
+      const dt = Math.max(1, now - lastTime)
+      velocity = dy / dt
+      lastY = t.clientY
+      lastX = t.clientX
+      lastTime = now
+      dispatchWheel(dy * LINES_PER_PX, t.clientX, t.clientY)
+    }'''
+
+    new_touch_move = '''    const onTouchMove = (e: TouchEvent) => {
+      if (!active || e.touches.length !== 1) return
+      e.preventDefault()
+      e.stopPropagation()
+      const t = e.touches[0]
+      const now = Date.now()
+      const dy = t.clientY - lastY
+      const dt = Math.max(1, now - lastTime)
+      velocity = dy / dt
+      lastY = t.clientY
+      lastX = t.clientX
+      lastTime = now
+      accumDelta += dy
+      const lines = Math.trunc(accumDelta / 14)
+      if (lines !== 0) {
+        accumDelta -= lines * 14
+        const inst = getTerminal(terminalId)
+        if (inst && inst.term) {
+          inst.term.scrollLines(-lines)
+        }
+      }
+    }'''
+
+    panel_code = panel_code.replace(old_touch_move, new_touch_move)
     open(panel_path, 'w').write(panel_code)
     print("Patched TerminalPanel.tsx for touch scrolling")
 
