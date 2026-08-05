@@ -44,3 +44,6 @@ alias please="sudo"
 
 # Powerlevel10k config
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Background Color
+printf '\033]11;#1e1e2e\007'

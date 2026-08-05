@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-caw
 category: developer
 name: Caw
-version: "1.0.3"
+version: "1.0.4"
 tagline: Web interface for AI agents
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-caw/icon.svg
 description: >-
