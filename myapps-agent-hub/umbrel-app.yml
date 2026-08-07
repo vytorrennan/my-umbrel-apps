@@ -1,0 +1,35 @@
+manifestVersion: 1
+id: myapps-agent-hub
+category: developer
+name: Agent Hub
+version: "1.0.0"
+tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, OpenChamber)
+icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/icon.svg
+description: >-
+  Runs T3 Code, OpenCode and OpenChamber servers plus a browser terminal on your
+  Umbrel, so you can drive coding agents from any device while the backends run
+  at home. Includes Git, fnm with Node LTS set as default, build-essential,
+  Python with uv and pip, curl, unzip, and JetBrains Mono Nerd Font. A non-root
+  "developer" user with sudo owns the environment, and your Projects folder is
+  mounted into the container at /home/developer/Projects.
+
+  Services:
+  - OpenChamber UI: http://<umbrel-ip>:3000
+  - OpenCode web:   http://<umbrel-ip>:4096
+  - T3 Code:        http://<umbrel-ip>:3773 (pair with a token)
+  - Terminal:       http://<umbrel-ip>:7682
+
+  In the browser terminal run "agent-hub-info" for connection details,
+  "set-lan-host <ip>" once to remember your Umbrel's LAN address, and
+  "pair-t3" to mint a fresh T3 Code pairing QR code.
+developer: vytorrennan
+website: https://github.com/vytorrennan/my-umbrel-apps
+submitter: vytorrennan
+submission: https://github.com/vytorrennan/my-umbrel-apps
+repo: https://github.com/vytorrennan/my-umbrel-apps
+support: https://github.com/vytorrennan/my-umbrel-apps/issues
+port: 3000
+gallery: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

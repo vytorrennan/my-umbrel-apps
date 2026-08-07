@@ -1,0 +1,24 @@
+services:
+  web:
+    image: docker.io/vytor/agent-hub:1.0.0
+    container_name: agent-hub
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "3773:3773"
+      - "4096:4096"
+      - "7682:7682"
+    volumes:
+      - /home/umbrel/umbrel/home/Projects:/home/developer/Projects
+      - agent-hub-data:/home/developer
+    environment:
+      - TERM=xterm-256color
+      # Optional: use a fixed UI/API password instead of an auto-generated one.
+      # - AGENT_PASSWORD=change-me
+      # Optional: your Umbrel's LAN IP or hostname so T3 pairing URLs and
+      # connection info point at it automatically (fallback: set-lan-host in
+      # the terminal). Example:
+      # - T3_LAN_HOST=192.168.1.100
+
+volumes:
+  agent-hub-data:
