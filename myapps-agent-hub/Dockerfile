@@ -63,7 +63,7 @@ RUN curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir /home/d
 RUN mkdir -p /home/developer/.npm-global && \
     npm config set prefix /home/developer/.npm-global && \
     npm config set allow-scripts=opencode-ai,node-pty,msgpackr-extract --location=user && \
-    npm install -g opencode-ai t3 @openchamber/web
+    npm install -g opencode-ai t3@nightly @openchamber/web
 
 # Shell config for the developer user
 COPY --chown=developer:developer .zshrc /home/developer/.zshrc
