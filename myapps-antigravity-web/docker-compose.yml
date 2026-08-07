@@ -11,6 +11,9 @@ services:
       - ${EXPORTS_APP_DIR}/data/gemini:/home/developer/.gemini
     environment:
       - PORT=8765
+      - NO_TLS=1
+      - ALLOW_REMOTE=1
+      - ALLOW_ALL=1
       - VERBOSE=1
 
 volumes:
