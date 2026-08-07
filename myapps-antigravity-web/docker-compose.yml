@@ -1,0 +1,17 @@
+services:
+  web:
+    image: docker.io/vytor/antigravity-web:1.0.0
+    container_name: antigravity-web
+    restart: unless-stopped
+    ports:
+      - "8765:8765"
+    volumes:
+      - /home/umbrel/umbrel/home/Projects:/home/developer/Projects
+      - ${EXPORTS_APP_DIR}/data/config:/home/developer/.config/Antigravity
+      - ${EXPORTS_APP_DIR}/data/gemini:/home/developer/.gemini
+    environment:
+      - PORT=8765
+      - VERBOSE=1
+
+volumes:
+  antigravity-web-data:
