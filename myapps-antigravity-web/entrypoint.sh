@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-# Ensure developer ownership of mounted persistent volumes
+# Ensure developer ownership of mounted persistent volume
 mkdir -p /home/developer/.config/Antigravity/User/globalStorage /home/developer/.gemini /home/developer/Projects
-chown -R developer:developer /home/developer/.config /home/developer/.gemini /home/developer/Projects /home/developer/antigravity-client 2>/dev/null || true
+chown -R developer:developer /home/developer 2>/dev/null || true
 
 export PORT=${PORT:-8765}
 export VERBOSE=${VERBOSE:-1}
