@@ -41,13 +41,17 @@ RUN chmod +x /opt/Antigravity/resources/bin/language_server
 
 # Clone & Build antigravity-client
 WORKDIR /home/developer/antigravity-client
-RUN git clone https://github.com/jkfujinami/antigravity-client.git . && \
-    npm install && \
-    npm run build && \
-    chown -R developer:developer /home/developer
+RUN git clone https://github.com/jkfujinami/antigravity-client.git .
 
-# Create mount point directories
-RUN mkdir -p /home/developer/Projects /home/developer/.config/Antigravity /home/developer/.gemini && \
+# Patch server.ts using patch-server.js
+COPY patch-server.js /home/developer/antigravity-client/patch-server.js
+RUN node patch-server.js
+
+RUN npm install && npm run build
+COPY onboarding-server.js /home/developer/antigravity-client/onboarding-server.js
+
+# Create mount point directories and set permissions
+RUN mkdir -p /home/developer/Projects /home/developer/.config/Antigravity/User/globalStorage /home/developer/.gemini && \
     chown -R developer:developer /home/developer
 
 # Copy entrypoint
