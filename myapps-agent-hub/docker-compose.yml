@@ -2,6 +2,7 @@ services:
   web:
     image: docker.io/vytor/agent-hub:1.0.0
     container_name: agent-hub
+    hostname: dev-machine
     restart: unless-stopped
     ports:
       - "3000:3000"

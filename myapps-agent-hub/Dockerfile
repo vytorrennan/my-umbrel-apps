@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-venv \
     python-is-python3 \
+    netcat-openbsd \
+    openssh-client \
     qrencode \
     sudo \
     supervisor \
@@ -38,6 +40,12 @@ RUN mkdir -p /usr/local/share/fonts/JetBrainsMono && \
 # Install uv (Python package installer) system-wide
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
     cp /root/.local/bin/uv /root/.local/bin/uvx /usr/local/bin/ 2>/dev/null || true
+
+# Install Tailscale
+RUN curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/noble.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg > /dev/null && \
+    curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/noble.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list > /dev/null && \
+    apt-get update && apt-get install -y --no-install-recommends tailscale && \
+    rm -rf /var/lib/apt/lists/*
 
 # Non-root developer user (UID 1000, matching the host) with passwordless sudo
 RUN (userdel -r ubuntu 2>/dev/null || true) && \
