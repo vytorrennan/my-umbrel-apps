@@ -54,7 +54,8 @@ if [ -n "${T3_LAN_HOST:-}" ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 4. Supervisor config for the four services, all running as developer.
+# 4. Supervisor config for the services, all running as developer (t3,
+#    opencode, openchamber, ttyd, tailscaled, agy-remote-control).
 # ---------------------------------------------------------------------------
 cat > "$SUPERVISOR_CONF" <<EOF
 [unix_http_server]
@@ -118,6 +119,33 @@ autostart=true
 autorestart=true
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/tailscaled.log
+EOF
+
+# ---------------------------------------------------------------------------
+# 4b. Antigravity Remote Control daemon (always installed, like t3/opencode).
+#     Wrapped in `script` because agy refuses to start without a TTY on stdin.
+# ---------------------------------------------------------------------------
+AGY_WRAPPER="$DEV_HOME/.antigravity/bin/run_agy_remote_control.sh"
+# Heal existing data volumes that predate the bundled agy install.
+if [ ! -x "$AGY_WRAPPER" ]; then
+  su developer -c 'curl -fsSL https://antigravity.google/cli/install.sh | bash || true' || true
+fi
+cat >> "$SUPERVISOR_CONF" <<EOF
+
+[program:agy-remote-control]
+command=/usr/bin/script -qec $AGY_WRAPPER /dev/null
+user=developer
+autostart=true
+autorestart=true
+startsecs=10
+startretries=999
+stopwaitsecs=20
+stopsignal=INT
+stopasgroup=true
+killasgroup=true
+redirect_stderr=true
+stdout_logfile=$LOG_DIR/agy-remote-control.log
+environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color"
 EOF
 
 # ---------------------------------------------------------------------------

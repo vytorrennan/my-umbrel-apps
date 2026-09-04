@@ -11,3 +11,6 @@ alias c="clear"
 alias please="sudo"
 alias make="make -j$(nproc)"
 alias agent-logs="sudo tail -f /var/log/agent-hub/*.log"
+
+# Codex SSD-wear guard: redirect log DB to RAM + block runaway inserts.
+[ -x /usr/local/bin/codex-ssd-guard ] && /usr/local/bin/codex-ssd-guard >/dev/null 2>&1

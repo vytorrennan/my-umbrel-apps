@@ -4,6 +4,11 @@ services:
     container_name: agent-hub
     hostname: dev-machine
     restart: unless-stopped
+    # Public resolvers instead of Docker's embedded DNS (127.0.0.11), which
+    # intermittently drops queries and stalls apps that resolve at startup.
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     ports:
       - "3000:3000"
       - "3773:3773"

@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat-openbsd \
     openssh-client \
     qrencode \
+    sqlite3 \
     sudo \
     supervisor \
     tar \
@@ -47,6 +48,10 @@ RUN curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/noble.noarmor.gpg | tee 
     apt-get update && apt-get install -y --no-install-recommends tailscale && \
     rm -rf /var/lib/apt/lists/*
 
+# Install Antigravity CLI (agy) system-wide
+RUN curl -fsSL https://antigravity.google/cli/install.sh | bash || true && \
+    cp /root/.local/bin/agy /usr/local/bin/ 2>/dev/null || true
+
 # Non-root developer user (UID 1000, matching the host) with passwordless sudo
 RUN (userdel -r ubuntu 2>/dev/null || true) && \
     useradd -m -s /usr/bin/zsh -u 1000 developer && \
@@ -66,12 +71,17 @@ RUN curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir /home/d
     /home/developer/.fnm/fnm default lts-latest && \
     node --version && npm --version
 
-# Install the three agent servers as global npm tools (OpenCode, T3 Code, OpenChamber)
-# allow-scripts opts npm 11 into running native build scripts (node-pty, msgpackr-extract)
+# Install the four agent servers as global npm tools (OpenCode, T3 Code, OpenChamber,
+# and Codex CLI) plus Antigravity CLI (agy). allow-scripts opts npm 11 into
+# running native build scripts (node-pty, msgpackr-extract)
 RUN mkdir -p /home/developer/.npm-global && \
     npm config set prefix /home/developer/.npm-global && \
-    npm config set allow-scripts=opencode-ai,node-pty,msgpackr-extract --location=user && \
-    npm install -g opencode-ai t3@nightly @openchamber/web
+    npm config set allow-scripts=opencode-ai,@openai/codex,node-pty,msgpackr-extract --location=user && \
+    npm install -g opencode-ai t3@nightly @openchamber/web @openai/codex
+
+# Install Antigravity CLI (agy) for the developer user (creates
+# ~/.local/bin/agy and ~/.antigravity/bin/run_agy_remote_control.sh)
+RUN curl -fsSL https://antigravity.google/cli/install.sh | bash || true
 
 # Shell config for the developer user
 COPY --chown=developer:developer .zshrc /home/developer/.zshrc
@@ -86,7 +96,8 @@ COPY entrypoint.sh /entrypoint.sh
 COPY scripts/pair-t3.sh /usr/local/bin/pair-t3
 COPY scripts/set-lan-host.sh /usr/local/bin/set-lan-host
 COPY scripts/agent-hub-info.sh /usr/local/bin/agent-hub-info
-RUN chmod +x /entrypoint.sh /usr/local/bin/pair-t3 /usr/local/bin/set-lan-host /usr/local/bin/agent-hub-info
+COPY scripts/codex-ssd-guard.sh /usr/local/bin/codex-ssd-guard
+RUN chmod +x /entrypoint.sh /usr/local/bin/pair-t3 /usr/local/bin/set-lan-host /usr/local/bin/agent-hub-info /usr/local/bin/codex-ssd-guard
 
 EXPOSE 3000 3773 4096 7682
 

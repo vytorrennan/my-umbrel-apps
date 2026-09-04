@@ -25,6 +25,7 @@ Local clients (backend on the server, client on your device)
   OpenCode TUI  : opencode attach http://$LAN_HOST:4096   (user: opencode / password: $PW)
   OpenChamber   : openchamber connect-url --port 3000 --server http://$LAN_HOST:3000 --qr
   T3 Code       : desktop app -> Add environment -> host $LAN_HOST:3773 + token from 'pair-t3'
+  Codex CLI     : codex in the terminal (set OPENAI_API_KEY first)
 
 Management
   set-lan-host <ip>    remember your Umbrel LAN address (do this once)

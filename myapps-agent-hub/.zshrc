@@ -17,3 +17,6 @@ alias agent-logs="sudo tail -f /var/log/agent-hub/*.log"
 
 PROMPT='%(?:%F{green}%B➜%b%F{cyan} %~ :%F{red}%B✗%b) %f'
 RPROMPT='%F{magenta}%m%f'
+
+# Codex SSD-wear guard: redirect log DB to RAM + block runaway inserts.
+[ -x /usr/local/bin/codex-ssd-guard ] && /usr/local/bin/codex-ssd-guard >/dev/null 2>&1

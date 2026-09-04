@@ -3,20 +3,21 @@ id: myapps-agent-hub
 category: developer
 name: Agent Hub
 version: "1.0.1"
-tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, OpenChamber)
+tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, OpenChamber, Codex)
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/icon.svg
 description: >-
-  Runs T3 Code, OpenCode and OpenChamber servers plus a browser terminal on your
-  Umbrel, so you can drive coding agents from any device while the backends run
-  at home. Includes Git, fnm with Node LTS set as default, build-essential,
-  Python with uv and pip, curl, unzip, and JetBrains Mono Nerd Font. A non-root
-  "developer" user with sudo owns the environment, and your Projects folder is
-  mounted into the container at /home/developer/Projects.
+  Runs T3 Code, OpenCode, OpenChamber and Codex CLI servers plus a browser
+  terminal on your Umbrel, so you can drive coding agents from any device while
+  the backends run at home. Includes Git, fnm with Node LTS set as default,
+  build-essential, Python with uv and pip, curl, unzip, and JetBrains Mono Nerd
+  Font. A non-root "developer" user with sudo owns the environment, and your
+  Projects folder is mounted into the container at /home/developer/Projects.
 
   Services:
   - OpenChamber UI: http://<umbrel-ip>:3000
   - OpenCode web:   http://<umbrel-ip>:4096
   - T3 Code:        http://<umbrel-ip>:3773 (pair with a token)
+  - Codex CLI:      in the terminal (codex, needs an OPENAI_API_KEY)
   - Terminal:       http://<umbrel-ip>:7682
 
   In the browser terminal run "agent-hub-info" for connection details,
