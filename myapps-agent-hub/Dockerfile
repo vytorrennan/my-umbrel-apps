@@ -97,7 +97,8 @@ COPY scripts/pair-t3.sh /usr/local/bin/pair-t3
 COPY scripts/set-lan-host.sh /usr/local/bin/set-lan-host
 COPY scripts/agent-hub-info.sh /usr/local/bin/agent-hub-info
 COPY scripts/codex-ssd-guard.sh /usr/local/bin/codex-ssd-guard
-RUN chmod +x /entrypoint.sh /usr/local/bin/pair-t3 /usr/local/bin/set-lan-host /usr/local/bin/agent-hub-info /usr/local/bin/codex-ssd-guard
+COPY scripts/t3-nightly-autoupdate.sh /usr/local/bin/t3-nightly-autoupdate
+RUN chmod +x /entrypoint.sh /usr/local/bin/pair-t3 /usr/local/bin/set-lan-host /usr/local/bin/agent-hub-info /usr/local/bin/codex-ssd-guard /usr/local/bin/t3-nightly-autoupdate
 
 EXPOSE 3000 3773 4096 7682
 
