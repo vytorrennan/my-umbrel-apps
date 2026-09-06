@@ -149,21 +149,6 @@ environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color"
 EOF
 
 # ---------------------------------------------------------------------------
-# 4c. T3 nightly auto-updater: checks every 6h, updates t3@nightly + restarts.
-# ---------------------------------------------------------------------------
-cat >> "$SUPERVISOR_CONF" <<EOF
-
-[program:t3-nightly-autoupdate]
-command=bash -c 'while true; do /usr/local/bin/t3-nightly-autoupdate; sleep 21600; done'
-user=developer
-autostart=true
-autorestart=true
-redirect_stderr=true
-stdout_logfile=$LOG_DIR/t3-nightly-autoupdate.log
-environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color"
-EOF
-
-# ---------------------------------------------------------------------------
 # 5. Startup banner (shown in docker logs).
 # ---------------------------------------------------------------------------
 LAN_HOST="${T3_LAN_HOST:-}"
