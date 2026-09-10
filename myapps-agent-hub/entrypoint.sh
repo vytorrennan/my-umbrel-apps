@@ -55,6 +55,42 @@ if [ -n "${T3_LAN_HOST:-}" ]; then
 fi
 
 # ---------------------------------------------------------------------------
+# 3b. Persist Tailscale state & SSH host keys across container updates.
+#     /var/lib/tailscale contains tailscaled.state (machine auth/node key)
+#     and /var/lib/tailscale/ssh/ (host keys for Tailscale SSH).
+# ---------------------------------------------------------------------------
+TAILSCALE_STATE_DIR="$CFG_DIR/tailscale"
+mkdir -p "$TAILSCALE_STATE_DIR"
+chmod 700 "$TAILSCALE_STATE_DIR"
+
+if [ ! -L /var/lib/tailscale ]; then
+  if [ -d /var/lib/tailscale ] && [ ! -e "$TAILSCALE_STATE_DIR/tailscaled.state" ]; then
+    cp -a /var/lib/tailscale/. "$TAILSCALE_STATE_DIR/" 2>/dev/null || true
+  fi
+  rm -rf /var/lib/tailscale
+  ln -s "$TAILSCALE_STATE_DIR" /var/lib/tailscale
+fi
+
+# Also persist OpenSSH server host keys if any exist
+SSH_HOST_KEYS_DIR="$CFG_DIR/ssh_host_keys"
+mkdir -p "$SSH_HOST_KEYS_DIR"
+chmod 700 "$SSH_HOST_KEYS_DIR"
+for key in /etc/ssh/ssh_host_*_key*; do
+  if [ -f "$key" ]; then
+    fname="$(basename "$key")"
+    if [ ! -f "$SSH_HOST_KEYS_DIR/$fname" ]; then
+      cp -a "$key" "$SSH_HOST_KEYS_DIR/$fname" 2>/dev/null || true
+    fi
+  fi
+done
+for key in "$SSH_HOST_KEYS_DIR"/ssh_host_*_key*; do
+  if [ -f "$key" ]; then
+    fname="$(basename "$key")"
+    cp -a "$key" "/etc/ssh/$fname" 2>/dev/null || true
+  fi
+done
+
+# ---------------------------------------------------------------------------
 # 4. Supervisor config for the services, all running as developer (t3,
 #    opencode, openchamber, ttyd, tailscaled, agy-remote-control).
 # ---------------------------------------------------------------------------

@@ -2,17 +2,17 @@ manifestVersion: 1
 id: myapps-agent-hub
 category: developer
 name: Agent Hub
-version: "1.0.3"
+version: "1.0.4"
 tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, OpenChamber, Codex)
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/icon.svg
 description: >-
   Runs T3 Code, OpenCode, OpenChamber and Codex CLI servers plus a browser
   terminal on your Umbrel, so you can drive coding agents from any device while
   the backends run at home. Includes Docker & Docker Compose (isolated DinD sidecar),
-  Git, fnm with Node LTS set as default, build-essential, Python with uv and pip,
-  curl, unzip, and JetBrains Mono Nerd Font. A non-root "developer" user with
-  sudo owns the environment, and your Projects folder is mounted into the
-  container at /home/developer/Projects.
+  Tailscale & Tailscale SSH state persistence, Git, fnm with Node LTS set as default,
+  build-essential, Python with uv and pip, curl, unzip, and JetBrains Mono Nerd Font.
+  A non-root "developer" user with sudo owns the environment, and your Projects folder
+  is mounted into the container at /home/developer/Projects.
 
   Services:
   - OpenChamber UI: http://<umbrel-ip>:3000
@@ -30,8 +30,17 @@ submitter: vytorrennan
 submission: https://github.com/vytorrennan/my-umbrel-apps
 repo: https://github.com/vytorrennan/my-umbrel-apps
 support: https://github.com/vytorrennan/my-umbrel-apps/issues
-port: 3000
-gallery: []
+gallery:
+  - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/1.png
+  - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/2.png
+  - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/3.png
+releaseNotes: >-
+  - Persist Tailscale authentication, machine identity, and Tailscale SSH host keys across container updates
+  - Add Docker and Docker Compose v2 via an isolated DinD (Docker-in-Docker) sidecar
+  - Seamless host-sharing of ~/Projects across inner Docker containers
+dependencies: []
 path: ""
 defaultUsername: ""
 defaultPassword: ""
+torOnly: false
+permissions: []
