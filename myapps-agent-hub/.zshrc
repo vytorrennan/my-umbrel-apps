@@ -9,6 +9,7 @@ export HISTFILESIZE=100000
 export HISTSIZE=50000
 export TERM=xterm-256color
 export EDITOR=vi
+export DOCKER_HOST="${DOCKER_HOST:-tcp://dind:2375}"
 
 alias c="clear"
 alias please="sudo"

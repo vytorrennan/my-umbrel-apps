@@ -6,6 +6,7 @@ fi
 
 export TERM=xterm-256color
 export EDITOR=vi
+export DOCKER_HOST="${DOCKER_HOST:-tcp://dind:2375}"
 
 alias c="clear"
 alias please="sudo"

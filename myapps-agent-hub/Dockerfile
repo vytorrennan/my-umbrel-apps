@@ -4,11 +4,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=xterm-256color
 
 # System dependencies: build-essential, git, python3 + pip, curl, unzip, fonts,
-# process management (supervisord), QR generation (qrencode) and ttyd terminal.
+# process management (supervisord), QR generation (qrencode), docker CLI, and ttyd terminal.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
     curl \
+    docker.io \
+    docker-compose-v2 \
     git \
     jq \
     procps \
@@ -52,9 +54,9 @@ RUN curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/noble.noarmor.gpg | tee 
 RUN curl -fsSL https://antigravity.google/cli/install.sh | bash || true && \
     cp /root/.local/bin/agy /usr/local/bin/ 2>/dev/null || true
 
-# Non-root developer user (UID 1000, matching the host) with passwordless sudo
+# Non-root developer user (UID 1000, matching the host) with passwordless sudo and docker group
 RUN (userdel -r ubuntu 2>/dev/null || true) && \
-    useradd -m -s /usr/bin/zsh -u 1000 developer && \
+    useradd -m -s /usr/bin/zsh -u 1000 -G docker developer && \
     echo "developer ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/developer && \
     chmod 0440 /etc/sudoers.d/developer
 

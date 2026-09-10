@@ -8,6 +8,7 @@ LOG_DIR=/var/log/agent-hub
 SUPERVISOR_CONF=/etc/supervisor/supervisord.conf
 
 DEV_PATH="$DEV_HOME/.npm-global/bin:$DEV_HOME/.fnm/aliases/default/bin:$DEV_HOME/.fnm/current/bin:$DEV_HOME/.fnm:$DEV_HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
+DOCKER_HOST="${DOCKER_HOST:-tcp://dind:2375}"
 
 # ---------------------------------------------------------------------------
 # 1. Make sure the data volume is owned by the non-root developer user.
@@ -82,7 +83,7 @@ autostart=true
 autorestart=true
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/t3.log
-environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",FNM_DIR="$DEV_HOME/.fnm",T3CODE_HOME="$DEV_HOME/.t3"
+environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",FNM_DIR="$DEV_HOME/.fnm",T3CODE_HOME="$DEV_HOME/.t3",DOCKER_HOST="$DOCKER_HOST"
 
 [program:opencode]
 command=opencode web --port 4096 --hostname 0.0.0.0 --print-logs
@@ -91,7 +92,7 @@ autostart=true
 autorestart=true
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/opencode.log
-environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",OPENCODE_SERVER_PASSWORD="$PW",OPENCODE_SERVER_USERNAME="opencode"
+environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",OPENCODE_SERVER_PASSWORD="$PW",OPENCODE_SERVER_USERNAME="opencode",DOCKER_HOST="$DOCKER_HOST"
 
 [program:openchamber]
 command=openchamber serve --port 3000 --host 0.0.0.0 --foreground
@@ -100,7 +101,7 @@ autostart=true
 autorestart=true
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/openchamber.log
-environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",OPENCHAMBER_UI_PASSWORD="$PW",OPENCODE_HOST="http://127.0.0.1:4096",OPENCODE_SKIP_START="true",OPENCODE_SERVER_PASSWORD="$PW",OPENCODE_SERVER_USERNAME="opencode",OPENCODE_JWT_SECRET="$JWT"
+environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",OPENCHAMBER_UI_PASSWORD="$PW",OPENCODE_HOST="http://127.0.0.1:4096",OPENCODE_SKIP_START="true",OPENCODE_SERVER_PASSWORD="$PW",OPENCODE_SERVER_USERNAME="opencode",OPENCODE_JWT_SECRET="$JWT",DOCKER_HOST="$DOCKER_HOST"
 
 [program:ttyd]
 command=ttyd -p 7682 -W -i 0.0.0.0 -t fontSize=14 -t fontFamily="JetBrainsMono Nerd Font, JetBrains Mono, monospace" -t cursorBlink=true -t cursorStyle=bar -t theme="{\"background\": \"#0e131f\", \"foreground\": \"#e2e8f0\", \"cursor\": \"#38bdf8\", \"cursorAccent\": \"#0e131f\", \"selectionBackground\": \"#1e293b\", \"black\": \"#0e131f\", \"red\": \"#ef4444\", \"green\": \"#10b981\", \"yellow\": \"#f59e0b\", \"blue\": \"#3b82f6\", \"magenta\": \"#d946ef\", \"cyan\": \"#06b6d4\", \"white\": \"#f8fafc\", \"brightBlack\": \"#475569\", \"brightRed\": \"#f87171\", \"brightGreen\": \"#34d399\", \"brightYellow\": \"#fbbf24\", \"brightBlue\": \"#60a5fa\", \"brightMagenta\": \"#e879f9\", \"brightCyan\": \"#22d3ee\", \"brightWhite\": \"#ffffff\"}" zsh
@@ -110,7 +111,7 @@ autostart=true
 autorestart=true
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/ttyd.log
-environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color"
+environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",DOCKER_HOST="$DOCKER_HOST"
 
 [program:tailscaled]
 command=/usr/sbin/tailscaled --tun=userspace-networking --socks5-server=localhost:1055
@@ -145,7 +146,7 @@ stopasgroup=true
 killasgroup=true
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/agy-remote-control.log
-environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color"
+environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",DOCKER_HOST="$DOCKER_HOST"
 EOF
 
 # ---------------------------------------------------------------------------

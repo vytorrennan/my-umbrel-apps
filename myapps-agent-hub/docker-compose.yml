@@ -19,12 +19,31 @@ services:
       - agent-hub-data:/home/developer
     environment:
       - TERM=xterm-256color
+      - DOCKER_HOST=tcp://dind:2375
       # Optional: use a fixed UI/API password instead of an auto-generated one.
       # - AGENT_PASSWORD=change-me
       # Optional: your Umbrel's LAN IP or hostname so T3 pairing URLs and
       # connection info point at it automatically (fallback: set-lan-host in
       # the terminal). Example:
       # - T3_LAN_HOST=192.168.1.100
+    depends_on:
+      - dind
+
+  dind:
+    image: docker:dind
+    container_name: agent-hub-dind
+    hostname: dind
+    restart: unless-stopped
+    privileged: true
+    environment:
+      - DOCKER_TLS_CERTDIR=
+    volumes:
+      - dind-data:/var/lib/docker
+      - /home/umbrel/umbrel/home/Projects:/home/developer/Projects
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
 
 volumes:
   agent-hub-data:
+  dind-data:
