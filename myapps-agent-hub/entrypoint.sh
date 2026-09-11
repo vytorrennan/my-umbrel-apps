@@ -20,6 +20,16 @@ install -d -o developer -g developer "$CFG_DIR" "$DEV_HOME/.local/share" "$DEV_H
 chown developer:developer "$DEV_HOME/.zshrc" "$DEV_HOME/.bashrc" 2>/dev/null || true
 mkdir -p "$LOG_DIR"
 
+# Ensure DOCKER_HOST points to dind in shell rc files and system environment
+sed -i 's|tcp://127.0.0.1:2375|tcp://dind:2375|g' "$DEV_HOME/.bashrc" "$DEV_HOME/.zshrc" 2>/dev/null || true
+if [ -f "$DEV_HOME/.bashrc" ] && ! grep -q "DOCKER_HOST" "$DEV_HOME/.bashrc" 2>/dev/null; then
+  echo 'export DOCKER_HOST="${DOCKER_HOST:-tcp://dind:2375}"' >> "$DEV_HOME/.bashrc"
+fi
+if [ -f "$DEV_HOME/.zshrc" ] && ! grep -q "DOCKER_HOST" "$DEV_HOME/.zshrc" 2>/dev/null; then
+  echo 'export DOCKER_HOST="${DOCKER_HOST:-tcp://dind:2375}"' >> "$DEV_HOME/.zshrc"
+fi
+echo "DOCKER_HOST=$DOCKER_HOST" > /etc/environment 2>/dev/null || true
+
 # ---------------------------------------------------------------------------
 # 2. Persisted secrets: shared UI/API password and OpenCode JWT secret.
 #    Persisted across restarts so sessions survive. Password is alphanumeric so

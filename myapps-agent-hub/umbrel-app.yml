@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-agent-hub
 category: developer
 name: Agent Hub
-version: "1.0.4"
+version: "1.0.5"
 tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, OpenChamber, Codex)
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/icon.svg
 description: >-
@@ -35,9 +35,9 @@ gallery:
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/2.png
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/3.png
 releaseNotes: >-
+  - Fix DOCKER_HOST routing to the DinD sidecar container across shells and SSH sessions
   - Persist Tailscale authentication, machine identity, and Tailscale SSH host keys across container updates
   - Add Docker and Docker Compose v2 via an isolated DinD (Docker-in-Docker) sidecar
-  - Seamless host-sharing of ~/Projects across inner Docker containers
 dependencies: []
 path: ""
 defaultUsername: ""
