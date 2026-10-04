@@ -104,6 +104,10 @@ done
 # 4. Supervisor config for the services, all running as developer (t3,
 #    opencode, openchamber, ttyd, tailscaled, agy-remote-control).
 # ---------------------------------------------------------------------------
+# The home volume can hide the npm packages bundled in a rebuilt image.
+# Upgrade old persisted installations before either server opens the database.
+su developer -s /bin/bash -c 'exec /usr/local/bin/agent-hub-opencode-v2'
+
 cat > "$SUPERVISOR_CONF" <<EOF
 [unix_http_server]
 file=/var/run/supervisor.sock
@@ -132,7 +136,7 @@ stdout_logfile=$LOG_DIR/t3.log
 environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",FNM_DIR="$DEV_HOME/.fnm",T3CODE_HOME="$DEV_HOME/.t3",DOCKER_HOST="$DOCKER_HOST"
 
 [program:opencode]
-command=opencode web --port 4096 --hostname 0.0.0.0 --print-logs
+command=opencode serve --port 4096 --hostname 0.0.0.0 --print-logs
 user=developer
 autostart=true
 autorestart=true

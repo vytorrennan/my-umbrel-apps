@@ -75,32 +75,30 @@ RUN curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir /home/d
 
 # Install the four agent servers as global npm tools (OpenCode, T3 Code, OpenChamber,
 # and Codex CLI) plus Antigravity CLI (agy). allow-scripts opts npm 11 into
-# running native build scripts (node-pty, msgpackr-extract)
+# running native build scripts and selecting OpenCode's platform binary.
+ENV OPENCODE_VERSION=2.0.22
+ENV OPENCHAMBER_VERSION=2.1.0
 RUN mkdir -p /home/developer/.npm-global && \
     npm config set prefix /home/developer/.npm-global && \
-    npm config set allow-scripts=opencode-ai,@openai/codex,node-pty,msgpackr-extract --location=user && \
-    npm install -g opencode-ai t3@nightly @openchamber/web @openai/codex
+    npm config set allow-scripts=@opencode/cli,@openai/codex,node-pty,msgpackr-extract --location=user && \
+    npm install -g "@opencode/cli@$OPENCODE_VERSION" t3@nightly "@openchamber/web@$OPENCHAMBER_VERSION" @openai/codex && \
+    opencode --version
 
 # Install Antigravity CLI (agy) for the developer user (creates
 # ~/.local/bin/agy and ~/.antigravity/bin/run_agy_remote_control.sh)
 RUN curl -fsSL https://antigravity.google/cli/install.sh | bash || true
 
-# Shell config for the developer user
-COPY --chown=developer:developer .zshrc /home/developer/.zshrc
-COPY --chown=developer:developer .bashrc /home/developer/.bashrc
-
-# Projects folder (bind-mounted from the host)
-RUN mkdir -p /home/developer/Projects
-
-# Root-owned entrypoint and helper scripts
+# Install shell config, entrypoint and helpers together to avoid many small layers.
 USER root
-COPY entrypoint.sh /entrypoint.sh
-COPY scripts/pair-t3.sh /usr/local/bin/pair-t3
-COPY scripts/set-lan-host.sh /usr/local/bin/set-lan-host
-COPY scripts/agent-hub-info.sh /usr/local/bin/agent-hub-info
-COPY scripts/codex-ssd-guard.sh /usr/local/bin/codex-ssd-guard
-COPY scripts/t3-nightly-autoupdate.sh /usr/local/bin/t3-nightly-autoupdate
-RUN chmod +x /entrypoint.sh /usr/local/bin/pair-t3 /usr/local/bin/set-lan-host /usr/local/bin/agent-hub-info /usr/local/bin/codex-ssd-guard /usr/local/bin/t3-nightly-autoupdate
+COPY .zshrc .bashrc entrypoint.sh scripts/ /tmp/agent-hub-build/
+RUN install -o developer -g developer -m 644 /tmp/agent-hub-build/.zshrc /home/developer/.zshrc && \
+    install -o developer -g developer -m 644 /tmp/agent-hub-build/.bashrc /home/developer/.bashrc && \
+    install -d -o developer -g developer /home/developer/Projects && \
+    install -m 755 /tmp/agent-hub-build/entrypoint.sh /entrypoint.sh && \
+    for helper in pair-t3 set-lan-host agent-hub-info codex-ssd-guard t3-nightly-autoupdate agent-hub-opencode-v2; do \
+      install -m 755 "/tmp/agent-hub-build/$helper.sh" "/usr/local/bin/$helper"; \
+    done && \
+    rm -rf /tmp/agent-hub-build
 
 EXPOSE 3000 3773 4096 7682
 
