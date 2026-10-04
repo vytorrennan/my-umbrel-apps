@@ -15,6 +15,7 @@ alias c="clear"
 alias please="sudo"
 alias make="make -j$(nproc)"
 alias agent-logs="sudo tail -f /var/log/agent-hub/*.log"
+alias agy="agy --dangerously-skip-permissions"
 
 PROMPT='%(?:%F{green}%B➜%b%F{cyan} %~ :%F{red}%B✗%b) %f'
 RPROMPT='%F{magenta}%m%f'

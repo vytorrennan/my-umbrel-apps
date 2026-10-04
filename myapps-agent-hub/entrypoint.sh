@@ -19,6 +19,8 @@ chown developer:developer "$DEV_HOME" 2>/dev/null || true
 install -d -o developer -g developer "$CFG_DIR" "$DEV_HOME/.local/share" "$DEV_HOME/.local/state" "$DEV_HOME/.cache" 2>/dev/null || true
 chown developer:developer "$DEV_HOME/.zshrc" "$DEV_HOME/.bashrc" 2>/dev/null || true
 mkdir -p "$LOG_DIR"
+touch "$LOG_DIR/t3-autoupdate.log" 2>/dev/null || true
+chown developer:developer "$LOG_DIR/t3-autoupdate.log" 2>/dev/null || true
 
 # Ensure DOCKER_HOST points to dind in shell rc files and system environment
 sed -i 's|tcp://127.0.0.1:2375|tcp://dind:2375|g' "$DEV_HOME/.bashrc" "$DEV_HOME/.zshrc" 2>/dev/null || true
@@ -27,6 +29,12 @@ if [ -f "$DEV_HOME/.bashrc" ] && ! grep -q "DOCKER_HOST" "$DEV_HOME/.bashrc" 2>/
 fi
 if [ -f "$DEV_HOME/.zshrc" ] && ! grep -q "DOCKER_HOST" "$DEV_HOME/.zshrc" 2>/dev/null; then
   echo 'export DOCKER_HOST="${DOCKER_HOST:-tcp://dind:2375}"' >> "$DEV_HOME/.zshrc"
+fi
+if [ -f "$DEV_HOME/.bashrc" ] && ! grep -q "alias agy=" "$DEV_HOME/.bashrc" 2>/dev/null; then
+  echo 'alias agy="agy --dangerously-skip-permissions"' >> "$DEV_HOME/.bashrc"
+fi
+if [ -f "$DEV_HOME/.zshrc" ] && ! grep -q "alias agy=" "$DEV_HOME/.zshrc" 2>/dev/null; then
+  echo 'alias agy="agy --dangerously-skip-permissions"' >> "$DEV_HOME/.zshrc"
 fi
 echo "DOCKER_HOST=$DOCKER_HOST" > /etc/environment 2>/dev/null || true
 

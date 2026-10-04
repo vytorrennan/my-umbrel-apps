@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-agent-hub
 category: developer
 name: Agent Hub
-version: "1.0.6"
+version: "1.0.7"
 tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, OpenChamber, Codex)
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/icon.svg
 description: >-
@@ -35,9 +35,9 @@ gallery:
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/2.png
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/3.png
 releaseNotes: >-
-  - Upgrade OpenCode to 2.0.22 and OpenChamber to 2.1.0
-  - Back up settings and session history before upgrading existing installations
-  - Update server startup and terminal connection commands for OpenCode v2
+  - Add the Antigravity alias that skips permission prompts, including existing persisted shell configs
+  - Keep T3 updates running through terminal disconnections with a detached, logged restart
+  - Add --force support to the T3 nightly update helper and ensure its log is writable
 dependencies: []
 path: ""
 defaultUsername: ""
