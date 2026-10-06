@@ -4,7 +4,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=xterm-256color
 
 # System dependencies: build-essential, git, python3 + pip, curl, unzip, fonts,
-# process management (supervisord), QR generation (qrencode), docker CLI, and ttyd terminal.
+# process management (supervisord), QR generation (qrencode), docker CLI, ttyd terminal,
+# and terminal editors (vim, nano).
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
@@ -13,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     docker-compose-v2 \
     git \
     jq \
+    nano \
     procps \
     python3 \
     python3-pip \
@@ -27,6 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tar \
     ttyd \
     unzip \
+    vim \
     wget \
     zsh \
     fontconfig \
