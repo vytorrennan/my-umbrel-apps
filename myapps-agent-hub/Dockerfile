@@ -5,7 +5,7 @@ ENV TERM=xterm-256color
 
 # System dependencies: build-essential, git, python3 + pip, curl, unzip, fonts,
 # process management (supervisord), QR generation (qrencode), docker CLI, ttyd terminal,
-# and terminal editors (vim, nano).
+# terminal editors (vim, nano), and T3's headless browser libraries.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
@@ -14,6 +14,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     docker-compose-v2 \
     git \
     jq \
+    libasound2t64 \
+    libatk-bridge2.0-0t64 \
+    libatk1.0-0t64 \
+    libatspi2.0-0t64 \
+    libdbus-1-3 \
+    libexpat1 \
+    libgbm1 \
+    libglib2.0-0t64 \
+    libnss3 \
+    libx11-6 \
+    libxcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxext6 \
+    libxfixes3 \
+    libxkbcommon0 \
+    libxrandr2 \
     nano \
     procps \
     python3 \

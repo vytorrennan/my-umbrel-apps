@@ -116,6 +116,8 @@ done
 # Upgrade old persisted installations before either server opens the database.
 su developer -s /bin/bash -c 'exec /usr/local/bin/agent-hub-opencode-v2'
 
+# Docker blocks the user namespaces Chrome's sandbox needs. Use T3's supported
+# setting to run its browser inside the container without Chrome's sandbox.
 cat > "$SUPERVISOR_CONF" <<EOF
 [unix_http_server]
 file=/var/run/supervisor.sock
@@ -141,7 +143,7 @@ autostart=true
 autorestart=true
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/t3.log
-environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",FNM_DIR="$DEV_HOME/.fnm",T3CODE_HOME="$DEV_HOME/.t3",DOCKER_HOST="$DOCKER_HOST"
+environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",FNM_DIR="$DEV_HOME/.fnm",T3CODE_HOME="$DEV_HOME/.t3",T3CODE_SERVER_BROWSER_SANDBOX="0",DOCKER_HOST="$DOCKER_HOST"
 
 [program:opencode]
 command=opencode serve --port 4096 --hostname 0.0.0.0 --print-logs
