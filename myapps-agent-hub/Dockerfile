@@ -53,6 +53,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-jetbrains-mono \
     && rm -rf /var/lib/apt/lists/*
 
+# Install GitHub CLI from its official apt repository. Authentication is stored
+# in /home/developer/.config/gh on the existing persistent home volume.
+RUN install -d -m 0755 /etc/apt/keyrings && \
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg -o /etc/apt/keyrings/githubcli-archive-keyring.gpg && \
+    chmod 0644 /etc/apt/keyrings/githubcli-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list && \
+    apt-get update && apt-get install -y --no-install-recommends gh && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install JetBrains Mono Nerd Font
 RUN mkdir -p /usr/local/share/fonts/JetBrainsMono && \
     curl -fsSL https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip -o /tmp/jb.zip && \
@@ -85,6 +94,7 @@ USER developer
 WORKDIR /home/developer
 
 ENV FNM_DIR=/home/developer/.fnm
+ENV GH_CONFIG_DIR=/home/developer/.config/gh
 ENV PATH=/home/developer/.npm-global/bin:/home/developer/.fnm/aliases/default/bin:/home/developer/.fnm/current/bin:/home/developer/.fnm:/home/developer/.local/bin:/usr/local/bin:/usr/bin:/bin
 
 # Install fnm and Node.js LTS, then set it as the default

@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-agent-hub
 category: developer
 name: Agent Hub
-version: "1.0.8"
+version: "1.0.9"
 tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, OpenChamber, Codex)
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/icon.svg
 description: >-
@@ -35,8 +35,9 @@ gallery:
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/2.png
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/3.png
 releaseNotes: >-
-  - Include the system libraries required by T3 Code's browser in the container image
-  - Configure T3 Code's browser to run without Chrome's internal sandbox inside the container
+  - Include GitHub CLI with configuration stored on the persistent developer home volume
+  - Resolve own-tailnet MagicDNS names through Tailscale DNS with the tailnet search domain
+  - Preserve automatic Docker service-name resolution for the DinD sidecar
 dependencies: []
 path: ""
 defaultUsername: ""

@@ -1,14 +1,15 @@
 services:
   web:
-    image: docker.io/vytor/agent-hub:1.0.8
+    image: docker.io/vytor/agent-hub:1.0.9
     container_name: agent-hub
     hostname: dev-machine
     restart: unless-stopped
-    # Public resolvers instead of Docker's embedded DNS (127.0.0.11), which
-    # intermittently drops queries and stalls apps that resolve at startup.
+    # Docker keeps service-name resolution and forwards other queries to
+    # Tailscale's DNS resolver, which handles MagicDNS and public domains.
     dns:
-      - 1.1.1.1
-      - 8.8.8.8
+      - 100.100.100.100
+    dns_search:
+      - feist-nominal.ts.net
     ports:
       - "3000:3000"
       - "3773:3773"
