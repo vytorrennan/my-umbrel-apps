@@ -34,6 +34,19 @@ A successful restart logs `verified running server: <version>`. Restart failures
 
 Keypad 7 with Num Lock off requires a client-side fix in affected T3 desktop builds. The [T3 Code customizations](https://github.com/vytorrennan/t3code-customizations) launcher supplies that fix. Container shell settings alone cannot correct a key the desktop client does not transmit.
 
+## Release 1.0.10
+
+Release 1.0.10 includes Bash completion after `sudo`, process-group cleanup during T3 restarts, and detached nightly restarts that verify the active server version. It also bundles Docker Buildx alongside the Docker CLI, so `docker buildx build` is available without installing an extra package. The separate desktop keypad fix is supplied by the customization launcher linked above.
+
 ## Applying source changes
 
 The Dockerfile and entrypoint include these changes for future image builds. Pushing this repository does not rebuild or publish the image referenced by `docker-compose.yml`; build and deploy an updated image to apply them to a newly created container. The live container was patched separately and both terminal fixes were verified on 2026-10-11.
+
+From this directory, build the versioned image and `latest` using the bundled Buildx plugin:
+
+```bash
+docker buildx build --platform linux/amd64 --load \
+  -t vytor/agent-hub:1.0.10 -t vytor/agent-hub:latest .
+```
+
+Docker in Agent Hub connects to its DinD sidecar. Building or publishing an image there does not replace the running Umbrel container; apply the release through Umbrel separately.

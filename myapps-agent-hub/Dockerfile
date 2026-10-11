@@ -121,6 +121,9 @@ RUN curl -fsSL https://antigravity.google/cli/install.sh | bash || true
 
 # Install shell config, entrypoint and helpers together to avoid many small layers.
 USER root
+# Include the BuildKit frontend for building and publishing images from Agent Hub.
+RUN apt-get update && apt-get install -y --no-install-recommends docker-buildx && \
+    rm -rf /var/lib/apt/lists/*
 COPY .zshrc .bashrc entrypoint.sh scripts/ /tmp/agent-hub-build/
 RUN install -o developer -g developer -m 644 /tmp/agent-hub-build/.zshrc /home/developer/.zshrc && \
     install -o developer -g developer -m 644 /tmp/agent-hub-build/.bashrc /home/developer/.bashrc && \
