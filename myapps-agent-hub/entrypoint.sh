@@ -141,6 +141,8 @@ command=t3 serve --host 0.0.0.0 --port 3773 --base-dir $DEV_HOME/.t3
 user=developer
 autostart=true
 autorestart=true
+stopasgroup=true
+killasgroup=true
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/t3.log
 environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",FNM_DIR="$DEV_HOME/.fnm",T3CODE_HOME="$DEV_HOME/.t3",T3CODE_SERVER_BROWSER_SANDBOX="0",DOCKER_HOST="$DOCKER_HOST"
