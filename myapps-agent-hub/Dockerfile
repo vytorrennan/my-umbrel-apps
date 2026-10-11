@@ -7,6 +7,7 @@ ENV TERM=xterm-256color
 # process management (supervisord), QR generation (qrencode), docker CLI, ttyd terminal,
 # terminal editors (vim, nano), and T3's headless browser libraries.
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    bash-completion \
     build-essential \
     ca-certificates \
     curl \

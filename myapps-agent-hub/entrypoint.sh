@@ -18,6 +18,19 @@ DOCKER_HOST="${DOCKER_HOST:-tcp://dind:2375}"
 chown developer:developer "$DEV_HOME" 2>/dev/null || true
 install -d -o developer -g developer "$CFG_DIR" "$DEV_HOME/.local/share" "$DEV_HOME/.local/state" "$DEV_HOME/.cache" 2>/dev/null || true
 chown developer:developer "$DEV_HOME/.zshrc" "$DEV_HOME/.bashrc" 2>/dev/null || true
+# The home volume preserves older shell configs across image rebuilds.
+# Load the completion package bundled in the image for existing Bash terminals.
+if [ -f "$DEV_HOME/.bashrc" ] && ! grep -q '^# Enable completion for command wrappers' "$DEV_HOME/.bashrc"; then
+  cat >> "$DEV_HOME/.bashrc" <<'BASH_COMPLETION'
+
+# Enable completion for command wrappers such as sudo in non-login terminals.
+if [[ $- == *i* ]] && ! declare -F _init_completion >/dev/null && \
+   [[ -r /usr/share/bash-completion/bash_completion ]]; then
+  . /usr/share/bash-completion/bash_completion
+fi
+BASH_COMPLETION
+fi
+
 mkdir -p "$LOG_DIR"
 touch "$LOG_DIR/t3-autoupdate.log" 2>/dev/null || true
 chown developer:developer "$LOG_DIR/t3-autoupdate.log" 2>/dev/null || true

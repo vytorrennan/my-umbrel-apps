@@ -8,6 +8,12 @@ export TERM=xterm-256color
 export EDITOR=vi
 export DOCKER_HOST="${DOCKER_HOST:-tcp://dind:2375}"
 
+# Enable completion for command wrappers such as sudo in non-login terminals.
+if [[ $- == *i* ]] && ! declare -F _init_completion >/dev/null && \
+   [[ -r /usr/share/bash-completion/bash_completion ]]; then
+  . /usr/share/bash-completion/bash_completion
+fi
+
 alias c="clear"
 alias please="sudo"
 alias make="make -j$(nproc)"
