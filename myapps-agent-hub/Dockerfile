@@ -124,9 +124,10 @@ USER root
 # Include the BuildKit frontend for building and publishing images from Agent Hub.
 RUN apt-get update && apt-get install -y --no-install-recommends docker-buildx && \
     rm -rf /var/lib/apt/lists/*
-COPY .zshrc .bashrc entrypoint.sh scripts/ /tmp/agent-hub-build/
+COPY .zshrc .bashrc ssh_config entrypoint.sh scripts/ /tmp/agent-hub-build/
 RUN install -o developer -g developer -m 644 /tmp/agent-hub-build/.zshrc /home/developer/.zshrc && \
     install -o developer -g developer -m 644 /tmp/agent-hub-build/.bashrc /home/developer/.bashrc && \
+    install -D -m 644 /tmp/agent-hub-build/ssh_config /etc/ssh/ssh_config.d/50-agent-hub.conf && \
     install -d -o developer -g developer /home/developer/Projects && \
     install -m 755 /tmp/agent-hub-build/entrypoint.sh /entrypoint.sh && \
     for helper in pair-t3 set-lan-host agent-hub-info codex-ssd-guard t3-nightly-autoupdate agent-hub-opencode-v2; do \
