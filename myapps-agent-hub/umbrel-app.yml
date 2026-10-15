@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-agent-hub
 category: developer
 name: Agent Hub
-version: "1.0.10"
+version: "1.0.11"
 tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, OpenChamber, Codex)
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/icon.svg
 description: >-
@@ -35,10 +35,9 @@ gallery:
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/2.png
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/3.png
 releaseNotes: >-
-  - Enable command completion after sudo in Bash terminals, including existing home volumes
-  - Stop the whole T3 process group during restarts so old servers cannot retain the port
-  - Keep nightly updater restarts running through terminal disconnects and verify the active server version
-  - Include Docker Buildx for building and publishing images without installing extra tools
+  - Route SSH connections through the local Tailscale SOCKS5 proxy by default
+  - Connect with ssh username@computer without repeating proxy options
+  - Include the laptop-linux account shortcut and preserve personal SSH overrides
 dependencies: []
 path: ""
 defaultUsername: ""
