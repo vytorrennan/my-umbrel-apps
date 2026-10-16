@@ -35,6 +35,14 @@ mkdir -p "$LOG_DIR"
 touch "$LOG_DIR/t3-autoupdate.log" 2>/dev/null || true
 chown developer:developer "$LOG_DIR/t3-autoupdate.log" 2>/dev/null || true
 
+# Install the window starter on every boot; its schedule stays in the home volume.
+WINDOW_STARTER_DIR="$DEV_HOME/.local/share/codex-window-starter"
+install -d -o developer -g developer "$WINDOW_STARTER_DIR" "$WINDOW_STARTER_DIR/empty"
+install -o developer -g developer -m 755 \
+  /usr/local/lib/agent-hub/codex-window-starter.py "$WINDOW_STARTER_DIR/starter.py"
+touch "$WINDOW_STARTER_DIR/service.log"
+chown developer:developer "$WINDOW_STARTER_DIR/service.log"
+
 # Ensure DOCKER_HOST points to dind in shell rc files and system environment
 sed -i 's|tcp://127.0.0.1:2375|tcp://dind:2375|g' "$DEV_HOME/.bashrc" "$DEV_HOME/.zshrc" 2>/dev/null || true
 if [ -f "$DEV_HOME/.bashrc" ] && ! grep -q "DOCKER_HOST" "$DEV_HOME/.bashrc" 2>/dev/null; then
@@ -195,6 +203,23 @@ autostart=true
 autorestart=true
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/tailscaled.log
+
+[program:codex-window-starter]
+command=/usr/bin/python3 $WINDOW_STARTER_DIR/starter.py
+directory=$WINDOW_STARTER_DIR/empty
+user=developer
+autostart=true
+autorestart=true
+startsecs=5
+startretries=3
+stopasgroup=true
+killasgroup=true
+stopwaitsecs=10
+redirect_stderr=true
+stdout_logfile=$WINDOW_STARTER_DIR/service.log
+stdout_logfile_maxbytes=1MB
+stdout_logfile_backups=2
+environment=PATH="$DEV_PATH",HOME="$DEV_HOME",PYTHONUNBUFFERED="1"
 EOF
 
 # ---------------------------------------------------------------------------
