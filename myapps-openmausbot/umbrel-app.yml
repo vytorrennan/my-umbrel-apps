@@ -1,0 +1,46 @@
+manifestVersion: 1
+id: myapps-openmausbot
+storage:
+  dataRoot: data
+category: ai
+name: OpenMausBot
+version: "0.1.112-umbrel.2"
+tagline: Chat with your own team of AI agents
+icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-openmausbot/icon.svg
+description: >-
+  Run OpenMausBot on your x86-64 Umbrel and chat with a team of AI agents.
+  Claude Code, Codex and Grok CLIs are included. Sign in to your chosen
+  provider in Settings, then create a bot. Provider accounts or API keys
+  are required and usage may incur charges.
+
+
+  Open the app through Umbrel and select Connect this browser to sign in.
+  Conversations, workspaces and engine credentials persist on your Umbrel.
+  Local VM desktops run in a dedicated nested Docker engine. Prepare the
+  desktop image in Settings, then choose Local VM for a bot. Each running
+  desktop needs up to 4 GiB of RAM and 2 CPUs. Cloud computers, VPS desktops
+  and connected apps require their own setup in OpenMausBot.
+
+
+  Native clients and webhooks connect to port 8797 using OpenMausBot's own
+  pairing and webhook credentials. Use HTTPS through your reverse proxy for
+  access outside your trusted network. Host desktop control is desktop-only.
+
+
+  Requires an x86-64 Umbrel. Upstream does not publish ARM64 container images.
+developer: Milind Soni
+website: https://www.openmausbot.com
+repo: https://github.com/milind-soni/OpenMausBot
+support: https://github.com/milind-soni/OpenMausBot/issues
+dependencies: []
+port: 8798
+gallery: []
+path: /umbrel-start
+defaultUsername: ""
+defaultPassword: ""
+submitter: vytorrennan
+submission: https://github.com/vytorrennan/my-umbrel-apps
+releaseNotes: >-
+  Adds isolated Local VM desktops, Docker and SSH for VPS connections,
+  Python and uv for custom tools, and a paired-client and webhook endpoint.
+  Updates remain tested Umbrel package releases.

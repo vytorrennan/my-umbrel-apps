@@ -1,0 +1,46 @@
+{
+	admin off
+	auto_https off
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+# This listener intentionally has no Umbrel login redirect, so native clients
+# and webhook senders can use upstream's session and per-webhook credentials.
+:8081 {
+	encode zstd gzip
+	@owner_paths path /umbrel-start* /terminal*
+	handle @owner_paths {
+		respond "Not found" 404
+	}
+	handle /hooks/* {
+		reverse_proxy 127.0.0.1:8800
+	}
+	handle {
+		reverse_proxy 127.0.0.1:8799 {
+			flush_interval -1
+		}
+	}
+}
+
+:8080 {
+	encode zstd gzip
+	handle /terminal* {
+		reverse_proxy 127.0.0.1:8802
+	}
+
+	handle /umbrel-start* {
+		reverse_proxy 127.0.0.1:8801
+	}
+
+	handle /hooks/* {
+		reverse_proxy 127.0.0.1:8800
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:8799 {
+			flush_interval -1
+		}
+	}
+}

@@ -1,0 +1,118 @@
+services:
+  app_proxy:
+    environment:
+      APP_HOST: myapps-openmausbot_server_1
+      APP_PORT: 8080
+
+  server:
+    image: docker.io/vytor/openmausbot:0.1.112-umbrel.2@sha256:8c4c039c56cf47b5facaa95b1585a3c42f76a9c1ad6421805e2b427c7447c941
+    platform: linux/amd64
+    user: "1000:1000"
+    init: true
+    shm_size: 512m
+    restart: unless-stopped
+    command: ["node", "/app/dist-server/server-launcher.js"]
+    environment:
+      HOME: /data
+      OMB_PORT: "8799"
+      OMB_WEBHOOK_PORT: "8800"
+      OMB_PUBLIC_URL: ${APP_OPENMAUSBOT_PUBLIC_URL:-http://${DEVICE_DOMAIN_NAME}:8797}
+      OMB_WEBHOOK_PUBLIC_URL: ${APP_OPENMAUSBOT_WEBHOOK_URL:-http://${DEVICE_DOMAIN_NAME}:8797}
+      DOCKER_HOST: tcp://127.0.0.1:2375
+    volumes:
+      - ${APP_DATA_DIR}/data/home:/data
+    ports:
+      # Paired API clients and secret-authenticated webhooks use upstream auth.
+      # The owner-pairing setup route is never served on this port.
+      - "8797:8081"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8799/api/health | grep -q openmausbot"]
+      interval: 15s
+      timeout: 5s
+      start_period: 60s
+      retries: 5
+
+  edge:
+    image: docker.io/vytor/openmausbot:0.1.112-umbrel.2@sha256:8c4c039c56cf47b5facaa95b1585a3c42f76a9c1ad6421805e2b427c7447c941
+    platform: linux/amd64
+    user: "1000:1000"
+    restart: unless-stopped
+    network_mode: service:server
+    command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+    volumes:
+      - ${APP_DATA_DIR}/Caddyfile:/etc/caddy/Caddyfile:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      server:
+        condition: service_healthy
+
+  setup:
+    image: docker.io/vytor/openmausbot:0.1.112-umbrel.2@sha256:8c4c039c56cf47b5facaa95b1585a3c42f76a9c1ad6421805e2b427c7447c941
+    platform: linux/amd64
+    user: "1000:1000"
+    init: true
+    restart: unless-stopped
+    network_mode: service:server
+    command: ["node", "/app/umbrel-setup.mjs"]
+    volumes:
+      - ${APP_DATA_DIR}/setup.mjs:/app/umbrel-setup.mjs:ro
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8801/umbrel-start', {signal: AbortSignal.timeout(4000)}).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    depends_on:
+      server:
+        condition: service_healthy
+
+  terminal:
+    image: docker.io/vytor/openmausbot:0.1.112-umbrel.2@sha256:8c4c039c56cf47b5facaa95b1585a3c42f76a9c1ad6421805e2b427c7447c941
+    platform: linux/amd64
+    user: "1000:1000"
+    init: true
+    restart: unless-stopped
+    network_mode: service:server
+    command: ["ttyd", "--writable", "--check-origin", "--interface", "127.0.0.1", "--port", "8802", "--base-path", "/terminal", "bash", "-l"]
+    environment:
+      HOME: /data
+      TERM: xterm-256color
+      DOCKER_HOST: tcp://127.0.0.1:2375
+    volumes:
+      - ${APP_DATA_DIR}/data/home:/data
+    working_dir: /data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8802/terminal/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      server:
+        condition: service_healthy
+
+  desktops:
+    image: docker:29-dind@sha256:0b6d18a4a222e71c88be6034926b4f6cde2fc33c2218643d03ccfddc65995470
+    restart: unless-stopped
+    privileged: true
+    network_mode: service:server
+    # Loopback keeps the nested daemon off the LAN and Umbrel Docker network.
+    command: ["dockerd", "--host=tcp://127.0.0.1:2375", "--host=unix:///var/run/docker.sock"]
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    volumes:
+      - ${APP_DATA_DIR}/data/docker:/var/lib/docker
+      # Upstream passes absolute workspace paths to the nested Docker daemon.
+      - ${APP_DATA_DIR}/data/home:/data
+    healthcheck:
+      test: ["CMD", "docker", "-H", "tcp://127.0.0.1:2375", "info"]
+      interval: 15s
+      timeout: 10s
+      start_period: 60s
+      retries: 5
+    depends_on:
+      server:
+        condition: service_started

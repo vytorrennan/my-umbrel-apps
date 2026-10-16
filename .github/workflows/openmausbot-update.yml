@@ -1,0 +1,110 @@
+name: Prepare tested OpenMausBot update
+
+on:
+  schedule:
+    - cron: "23 8 * * *"
+  workflow_dispatch:
+    inputs:
+      rebuild:
+        description: Rebuild the current package version for initial publication
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: openmausbot-update
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e
+      - name: Resolve stable upstream release
+        id: upstream
+        env:
+          REBUILD: ${{ inputs.rebuild }}
+        run: |
+          args=(--apply)
+          if [[ "$REBUILD" == true ]]; then args+=(--force); fi
+          python3 myapps-openmausbot/scripts/prepare-update.py "${args[@]}"
+      - name: Select package image
+        if: steps.upstream.outputs.changed == 'true'
+        id: package
+        run: |
+          version=$(python3 -c 'import json; print(json.load(open("myapps-openmausbot/upstream.json"))["packageVersion"])')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "image=docker.io/vytor/openmausbot:$version" >> "$GITHUB_OUTPUT"
+      - name: Check for an existing update review
+        if: steps.upstream.outputs.changed == 'true'
+        id: review
+        env:
+          PACKAGE_VERSION: ${{ steps.package.outputs.version }}
+        run: |
+          existing=$(gh pr list --head "automation/openmausbot-$PACKAGE_VERSION" --state open --json number --jq '.[0].number // empty')
+          if [[ -n "$existing" ]]; then echo 'open=true' >> "$GITHUB_OUTPUT"; fi
+      - name: Build candidate
+        if: steps.upstream.outputs.changed == 'true' && steps.review.outputs.open != 'true'
+        env:
+          IMAGE: ${{ steps.package.outputs.image }}
+        run: |
+          # The disposable hosted runner needs room for the Cua desktop layers.
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          if docker buildx imagetools inspect "$IMAGE" >/dev/null 2>&1; then
+            docker pull "$IMAGE"
+          else
+            docker buildx build --load --platform linux/amd64 -t "$IMAGE" myapps-openmausbot
+          fi
+      - name: Test candidate, including a real Local VM desktop
+        if: steps.upstream.outputs.changed == 'true' && steps.review.outputs.open != 'true'
+        run: python3 myapps-openmausbot/scripts/smoke-test.py --desktop
+      - name: Publish tested image
+        if: steps.upstream.outputs.changed == 'true' && steps.review.outputs.open != 'true'
+        env:
+          IMAGE: ${{ steps.package.outputs.image }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          printf '%s' "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+          if ! docker buildx imagetools inspect "$IMAGE" >/dev/null 2>&1; then docker push "$IMAGE"; fi
+          digest=$(docker buildx imagetools inspect "$IMAGE" --format '{{json .Manifest.Digest}}' | tr -d '"')
+          IMAGE_DIGEST="$digest" python3 - <<'PY'
+          import os
+          from pathlib import Path
+          path = Path('myapps-openmausbot/docker-compose.yml')
+          image = os.environ['IMAGE']
+          path.write_text(path.read_text().replace(image, image + '@' + os.environ['IMAGE_DIGEST']))
+          PY
+      - name: Open update for review
+        if: steps.upstream.outputs.changed == 'true' && steps.review.outputs.open != 'true'
+        env:
+          PACKAGE_VERSION: ${{ steps.package.outputs.version }}
+        run: |
+          branch="automation/openmausbot-$PACKAGE_VERSION"
+          if [[ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')" ]]; then
+            echo 'An update PR is already open.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+          git add myapps-openmausbot/Dockerfile myapps-openmausbot/docker-compose.yml myapps-openmausbot/umbrel-app.yml myapps-openmausbot/upstream.json
+          git diff --cached --check
+          git commit -m "Update OpenMausBot to $PACKAGE_VERSION"
+          git push origin "$branch"
+          body_file=$(mktemp)
+          cat > "$body_file" <<'BODY'
+          Updates the Umbrel package to the released upstream version recorded in upstream.json.
+
+          Built and tested the candidate before publication. Checks cover pairing, origin validation, native API clients, webhook routing, CLI tools, an isolated Docker daemon, a real Cua desktop screenshot, and persistence after container recreation.
+
+          The app image is pinned by digest. Merge after review to offer this version through the Umbrel app store. Installed apps do not update themselves.
+          BODY
+          gh pr create --title "Update OpenMausBot to $PACKAGE_VERSION" --body-file "$body_file" --head "$branch"

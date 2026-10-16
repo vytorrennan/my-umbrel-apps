@@ -1,0 +1,54 @@
+import { createServer } from 'node:http';
+
+// This endpoint mints owner pairing codes. Only expose it through Umbrel's
+// authenticated app_proxy; never publish the edge container's port directly.
+const page = `<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>OpenMausBot on Umbrel</title>
+<style>body{background:#101113;color:#eee;font:18px system-ui;max-width:620px;margin:12vh auto;padding:24px;line-height:1.6}button,a{font:inherit;color:inherit}button{background:#eee;color:#111;border:0;border-radius:8px;padding:12px 20px;cursor:pointer}a{display:inline-block;margin-top:20px}</style>
+<h1>OpenMausBot</h1><p>Connect this browser to your OpenMausBot server. Then sign in to an AI provider in Settings and create your first bot.</p>
+<form method="post" action="/umbrel-start"><button>Connect this browser</button></form>
+<a href="/">Open an existing session</a>
+<p><a href="/terminal/">Open terminal</a> for SSH setup, custom engines and command-line tools.</p>
+<p>Your conversations and agent credentials stay on your Umbrel.</p></html>`;
+
+createServer(async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Referrer-Policy', 'same-origin');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'self'");
+  if (req.url !== '/umbrel-start') {
+    res.writeHead(404).end('Not found');
+    return;
+  }
+  if (req.method === 'GET') {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.end(page);
+    return;
+  }
+  if (req.method !== 'POST') {
+    res.writeHead(405, { Allow: 'GET, POST' }).end('Method not allowed');
+    return;
+  }
+  const scheme = String(req.headers['x-forwarded-proto'] ?? 'http');
+  if (req.headers.origin !== scheme + '://' + req.headers.host ||
+      req.headers['sec-fetch-site'] === 'cross-site') {
+    res.writeHead(403).end('Open this page from Umbrel and try again.');
+    return;
+  }
+  try {
+    const upstream = await fetch('http://127.0.0.1:8799/api/auth/pairing', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ label: 'Umbrel browser', scopes: ['admin', 'client'] }),
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!upstream.ok) throw new Error('Pairing refused');
+    const pairing = await upstream.json();
+    if (typeof pairing.code !== 'string' || !pairing.code) throw new Error('Missing pairing code');
+    res.writeHead(303, { Location: '/pair#code=' + encodeURIComponent(pairing.code) }).end();
+  } catch {
+    res.writeHead(503, { 'Content-Type': 'text/plain; charset=utf-8' })
+      .end('OpenMausBot is not ready. Wait a moment, then return to this page and try again.');
+  }
+}).listen(8801, '127.0.0.1');
