@@ -1,6 +1,6 @@
 services:
   web:
-    image: docker.io/vytor/agent-hub:1.0.11
+    image: docker.io/vytor/agent-hub:1.0.12
     container_name: agent-hub
     hostname: dev-machine
     restart: unless-stopped
@@ -18,9 +18,6 @@ services:
     volumes:
       - /home/umbrel/umbrel/home/Projects:/home/developer/Projects
       - agent-hub-data:/home/developer
-      # Apply startup fixes with the existing image, and retain them on recreation.
-      - ./entrypoint.sh:/entrypoint.sh:ro
-      - ./scripts/codex-window-starter.py:/usr/local/lib/agent-hub/codex-window-starter.py:ro
     environment:
       - TERM=xterm-256color
       - DOCKER_HOST=tcp://dind:2375
