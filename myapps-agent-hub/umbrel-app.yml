@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-agent-hub
 category: developer
 name: Agent Hub
-version: "1.0.12"
+version: "1.0.13"
 tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, OpenChamber, Codex)
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/icon.svg
 description: >-
@@ -35,9 +35,9 @@ gallery:
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/2.png
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/3.png
 releaseNotes: >-
-  - Start the Codex window starter automatically after container updates and restarts
-  - Use only GPT-6 Luna low and preserve its five-hour message schedule in the home volume
-  - Bundle the service and startup configuration directly in the image
+  - Enable T3 Code's Tailscale Serve integration automatically at startup
+  - Offer tailnet-only HTTPS access on port 443 for browser and mobile connections
+  - Keep the existing LAN endpoint and persistent Tailscale node state
 dependencies: []
 path: ""
 defaultUsername: ""

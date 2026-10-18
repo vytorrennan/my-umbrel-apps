@@ -158,7 +158,7 @@ pidfile=/var/run/supervisord.pid
 serverurl=unix:///var/run/supervisor.sock
 
 [program:t3]
-command=t3 serve --host 0.0.0.0 --port 3773 --base-dir $DEV_HOME/.t3
+command=t3 serve --host 0.0.0.0 --port 3773 --base-dir $DEV_HOME/.t3 --tailscale-serve --tailscale-serve-port 443
 user=developer
 autostart=true
 autorestart=true
