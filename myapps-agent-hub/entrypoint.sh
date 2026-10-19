@@ -70,6 +70,8 @@ if [ -f "$SECRETS" ]; then
   # shellcheck disable=SC1090
   source "$SECRETS" 2>/dev/null || true
 fi
+# Reuse the saved JWT as well as the password when recreating the container.
+JWT="${OPENCODE_JWT_SECRET:-$JWT}"
 
 if [ -n "${AGENT_PASSWORD:-}" ]; then
   PW="$(printf '%s' "$AGENT_PASSWORD" | tr -cd 'A-Za-z0-9' | head -c 32)"
@@ -166,13 +168,16 @@ stopasgroup=true
 killasgroup=true
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/t3.log
-environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",FNM_DIR="$DEV_HOME/.fnm",T3CODE_HOME="$DEV_HOME/.t3",T3CODE_SERVER_BROWSER_SANDBOX="0",DOCKER_HOST="$DOCKER_HOST"
+environment=PATH="/usr/local/lib/agent-hub/provider-bin:$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",FNM_DIR="$DEV_HOME/.fnm",T3CODE_HOME="$DEV_HOME/.t3",T3CODE_SERVER_BROWSER_SANDBOX="0",DOCKER_HOST="$DOCKER_HOST"
 
 [program:opencode]
-command=opencode serve --port 4096 --hostname 0.0.0.0 --print-logs
+command=/usr/bin/python3 /usr/local/bin/agent-hub-opencode-server -- opencode serve --port 4096 --hostname 0.0.0.0 --print-logs
 user=developer
 autostart=true
 autorestart=true
+stopasgroup=true
+killasgroup=true
+stopwaitsecs=15
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/opencode.log
 environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",OPENCODE_SERVER_PASSWORD="$PW",OPENCODE_SERVER_USERNAME="opencode",DOCKER_HOST="$DOCKER_HOST"

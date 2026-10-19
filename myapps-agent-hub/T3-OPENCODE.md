@@ -38,3 +38,27 @@ transient discovery failure if OpenCode is not ready when T3 checks it. Refresh
 the provider status after both services are running. Sharing the existing server
 reduces cold-start work; it does not guarantee automatic recovery from every
 startup race or server outage.
+
+## Automatic shared-server updates
+
+Agent Hub 1.0.15 and later run OpenCode through
+`/usr/local/bin/agent-hub-opencode-server`. It watches the installed executable
+and checks a changed CLI before restarting the server. An incomplete or failing
+replacement leaves the existing server running. Reinstalling the same version
+does not restart it. Supervisor still restarts a server that exits unexpectedly.
+
+T3's PATH starts with `/usr/local/lib/agent-hub/provider-bin`. Its `npm` shim
+forwards ordinary commands unchanged. After a successful global install of
+`@opencode/cli`, it waits up to 25 seconds for the authenticated shared server to
+report the installed version before returning success. This prevents T3's
+immediate post-install check from reading the old server version. It reuses the
+existing persisted Agent Hub password without printing or embedding it.
+
+Updates can briefly interrupt OpenCode work when its server restarts. These
+changes automate the reload; they do not change T3's upstream code. The image
+bundles both helpers and generates their startup configuration on
+every boot, so the automation survives recreation with this release and the
+retained home volume.
+
+The entrypoint also reuses `OPENCODE_JWT_SECRET` from its saved secrets file,
+so the existing session-signing secret survives container recreation.

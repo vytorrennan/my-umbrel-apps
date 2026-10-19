@@ -126,6 +126,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends docker-buildx &
     rm -rf /var/lib/apt/lists/*
 COPY .zshrc .bashrc ssh_config entrypoint.sh scripts/ /tmp/agent-hub-build/
 COPY scripts/codex-window-starter.py /usr/local/lib/agent-hub/codex-window-starter.py
+COPY --chmod=644 scripts/agent-hub-opencode-server.py /usr/local/bin/agent-hub-opencode-server
+COPY --chmod=755 scripts/agent-hub-provider-npm.py /usr/local/lib/agent-hub/provider-bin/npm
 RUN install -o developer -g developer -m 644 /tmp/agent-hub-build/.zshrc /home/developer/.zshrc && \
     install -o developer -g developer -m 644 /tmp/agent-hub-build/.bashrc /home/developer/.bashrc && \
     install -D -m 644 /tmp/agent-hub-build/ssh_config /etc/ssh/ssh_config.d/50-agent-hub.conf && \
