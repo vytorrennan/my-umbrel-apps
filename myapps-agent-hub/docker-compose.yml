@@ -1,6 +1,6 @@
 services:
   web:
-    image: docker.io/vytor/agent-hub:1.0.15
+    image: docker.io/vytor/agent-hub:1.0.16
     container_name: agent-hub
     hostname: dev-machine
     restart: unless-stopped

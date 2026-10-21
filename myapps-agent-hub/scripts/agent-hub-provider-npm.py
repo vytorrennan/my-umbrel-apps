@@ -12,9 +12,34 @@ import urllib.request
 
 
 def real_npm():
-    own = Path(__file__).resolve().parent
-    paths = [p for p in os.get_exec_path() if Path(p).resolve() != own]
-    return shutil.which('npm', path=os.pathsep.join(paths))
+    # Login-shell PATHs can contain both the home and image copies of this shim.
+    # Skip every copy, not just the directory of the current executable.
+    seen = set()
+    for directory in os.get_exec_path():
+        candidate = shutil.which('npm', path=directory)
+        if candidate is None:
+            continue
+        resolved = str(Path(candidate).resolve())
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        try:
+            with open(candidate, 'rb') as source:
+                if b'Forward npm; wait for the shared server' in source.read(256):
+                    continue
+        except OSError:
+            continue
+        return candidate
+    return None
+
+
+def bridge_settings():
+    path = Path.home() / '.config/opencode-t3/update-bridge.json'
+    try:
+        value = json.loads(path.read_text())
+        return value if isinstance(value, dict) else {}
+    except (OSError, ValueError):
+        return {}
 
 
 def is_opencode_install(args):
@@ -26,8 +51,9 @@ def is_opencode_install(args):
 def server_password():
     if os.environ.get('OPENCODE_SERVER_PASSWORD'):
         return os.environ['OPENCODE_SERVER_PASSWORD']
-    path = Path(os.environ.get('AGENT_HUB_OPENCODE_CREDENTIAL_FILE',
-                               str(Path.home() / '.config/agent-hub/secrets.env')))
+    path = Path(os.environ.get('AGENT_HUB_OPENCODE_CREDENTIAL_FILE')
+                or bridge_settings().get('credentialFile')
+                or str(Path.home() / '.config/agent-hub/secrets.env'))
     # Agent Hub writes an alphanumeric PW, not arbitrary shell expressions.
     for line in path.read_text().splitlines():
         if line.startswith(('AGENT_PASSWORD=', 'PW=', 'OPENCODE_SERVER_PASSWORD=')):
@@ -47,12 +73,17 @@ def reported_version(value):
 
 
 def wait_for_server():
-    binary = os.environ.get('AGENT_HUB_OPENCODE_BINARY', str(Path.home() / '.npm-global/bin/opencode'))
+    settings = bridge_settings()
+    binary = (os.environ.get('AGENT_HUB_OPENCODE_BINARY')
+              or settings.get('binaryPath')
+              or str(Path.home() / '.npm-global/bin/opencode'))
     result = subprocess.run([binary, '--version'], capture_output=True, text=True, timeout=5, check=True)
     target = result.stdout.strip().removeprefix('opencode ').lstrip('v')
     credentials = 'opencode:' + server_password()
     header = {'Authorization': 'Basic ' + base64.b64encode(credentials.encode()).decode()}
-    url = os.environ.get('AGENT_HUB_OPENCODE_INFO_URL', 'http://127.0.0.1:4096/api/info')
+    url = (os.environ.get('AGENT_HUB_OPENCODE_INFO_URL')
+           or settings.get('infoUrl')
+           or 'http://127.0.0.1:4096/api/info')
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     deadline = time.monotonic() + 25
     while time.monotonic() < deadline:

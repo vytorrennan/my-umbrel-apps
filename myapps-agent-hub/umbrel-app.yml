@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-agent-hub
 category: developer
 name: Agent Hub
-version: "1.0.15"
+version: "1.0.16"
 tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, OpenChamber, Codex)
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/icon.svg
 description: >-
@@ -35,6 +35,9 @@ gallery:
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/2.png
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/3.png
 releaseNotes: >-
+  - Install the OpenCode update bridge on T3's global npm lookup path
+  - Save nonsecret server paths for maintenance commands without provider environment
+  - Skip duplicate bridge copies to prevent recursive npm dispatch
   - Automatically reload the shared OpenCode server after CLI version updates
   - Wait for server version readiness before T3 Code verifies an npm update
   - Preserve the running server during incomplete updates and avoid restarts for same-version reinstalls

@@ -62,3 +62,31 @@ retained home volume.
 
 The entrypoint also reuses `OPENCODE_JWT_SECRET` from its saved secrets file,
 so the existing session-signing secret survives container recreation.
+
+## T3 maintenance environment and the login-shell PATH
+
+T3 does not pass a provider instance's environment into its maintenance command.
+A PATH override saved only on OpenCode therefore does not select the npm bridge
+for T3's updater. Startup and login-shell PATHs can also differ. Verify the npm
+chosen by the running T3 environment rather than assuming the Supervisor prefix
+or an interactive terminal proves interception.
+
+The current startup source installs the bridge at `~/.local/bin/npm` as well as
+its image location. Existing non-bridge npm launchers are backed up before
+replacement. Every bridge copy skips other copies when selecting the real npm,
+so multiple PATH entries cannot recurse. Ordinary npm commands still pass
+through. On CachyOS the previous npm symlink is preserved as
+`~/.local/bin/npm.before-t3-update-bridge`.
+
+The bridge can read nonsecret connection paths from
+`~/.config/opencode-t3/update-bridge.json`, using `binaryPath`, `credentialFile`,
+and `infoUrl`. It reads the password privately from the referenced file; the
+JSON does not contain credentials. This lets the global maintenance process use
+the laptop's configured service without provider-specific environment values.
+The Agent Hub default continues to use its persistent secrets file.
+
+These corrections are applied live on dev-machine and CachyOS and are included
+in Agent Hub 1.0.16. The live laptop bridge and its saved connection paths are
+independent of the Agent Hub image. A same-version npm reinstall alone is not
+enough to validate this behavior: exercise T3's actual update operation and
+check its returned updateState and readiness output.

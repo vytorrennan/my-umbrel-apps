@@ -43,6 +43,20 @@ install -o developer -g developer -m 755 \
 touch "$WINDOW_STARTER_DIR/service.log"
 chown developer:developer "$WINDOW_STARTER_DIR/service.log"
 
+# T3 imports a login-shell PATH, which can discard its Supervisor PATH prefix.
+# Keep the npm bridge in the existing home bin directory used by that shell.
+install -d -o developer -g developer "$DEV_HOME/.local/bin"
+NPM_BRIDGE="$DEV_HOME/.local/bin/npm"
+if [ -e "$NPM_BRIDGE" ] || [ -L "$NPM_BRIDGE" ]; then
+  if ! grep -q 'Forward npm; wait for the shared server' "$NPM_BRIDGE" 2>/dev/null && \
+     [ ! -e "$NPM_BRIDGE.before-t3-update-bridge" ] && [ ! -L "$NPM_BRIDGE.before-t3-update-bridge" ]; then
+    cp -a "$NPM_BRIDGE" "$NPM_BRIDGE.before-t3-update-bridge"
+  fi
+  rm -f "$NPM_BRIDGE"
+fi
+install -o developer -g developer -m 755 \
+  /usr/local/lib/agent-hub/provider-bin/npm "$NPM_BRIDGE"
+
 # Ensure DOCKER_HOST points to dind in shell rc files and system environment
 sed -i 's|tcp://127.0.0.1:2375|tcp://dind:2375|g' "$DEV_HOME/.bashrc" "$DEV_HOME/.zshrc" 2>/dev/null || true
 if [ -f "$DEV_HOME/.bashrc" ] && ! grep -q "DOCKER_HOST" "$DEV_HOME/.bashrc" 2>/dev/null; then
