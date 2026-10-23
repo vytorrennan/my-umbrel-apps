@@ -1,6 +1,6 @@
 {
-  "version": "0.1.112",
-  "revision": "113ec83256971c62088a0bbd507c6fa3a2cd4091",
-  "image": "ghcr.io/milind-soni/openmausbot-cloud-home@sha256:09501f8b317730e3a92faee60f2c85d2e6a6d51849d23ad1d8a61ed40f319f05",
-  "packageVersion": "0.1.112-umbrel.2"
+  "version": "0.1.124",
+  "revision": "3dbf0f79b318799d4868458312952b0c2d4e47ff",
+  "image": "ghcr.io/milind-soni/openmausbot-cloud-home@sha256:b1fa29c759222485442d05c8ce89500e5ddcdd82a621fd2548f7a26f693e3083",
+  "packageVersion": "0.1.124-umbrel.1"
 }
