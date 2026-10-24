@@ -1,4 +1,4 @@
-ARG UPSTREAM_IMAGE=ghcr.io/milind-soni/openmausbot-cloud-home@sha256:09501f8b317730e3a92faee60f2c85d2e6a6d51849d23ad1d8a61ed40f319f05
+ARG UPSTREAM_IMAGE=ghcr.io/milind-soni/openmausbot-cloud-home@sha256:360a61abe2ad62d403524574a4bff966241d4ccd488f852d6a70f4b3fe6789da
 FROM docker:29-cli@sha256:1a4c7cb63513f349bdad01fcc6e0f3f2f67d37b9da86f14dc0d4a0942eecda00 AS docker_cli
 FROM ghcr.io/astral-sh/uv@sha256:4a1f3666816dafadd20ceb71eac9a7d56d7ef30279f7d64048519ab901ada336 AS uv
 FROM ${UPSTREAM_IMAGE}
