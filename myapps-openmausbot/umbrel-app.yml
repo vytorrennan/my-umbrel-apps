@@ -4,7 +4,7 @@ storage:
   dataRoot: data
 category: ai
 name: OpenMausBot
-version: "0.1.112-umbrel.2"
+version: "0.1.134-umbrel.1"
 tagline: Chat with your own team of AI agents
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-openmausbot/icon.svg
 description: >-
@@ -41,6 +41,4 @@ defaultPassword: ""
 submitter: vytorrennan
 submission: https://github.com/vytorrennan/my-umbrel-apps
 releaseNotes: >-
-  Adds isolated Local VM desktops, Docker and SSH for VPS connections,
-  Python and uv for custom tools, and a paired-client and webhook endpoint.
-  Updates remain tested Umbrel package releases.
+  Updates OpenMausBot to 0.1.134.
