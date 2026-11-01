@@ -5,7 +5,7 @@ services:
       APP_PORT: 8080
 
   server:
-    image: docker.io/vytor/openmausbot:0.1.112-umbrel.2@sha256:8c4c039c56cf47b5facaa95b1585a3c42f76a9c1ad6421805e2b427c7447c941
+    image: docker.io/vytor/openmausbot:0.1.137-umbrel.1@sha256:85c006b0b5ba99873b79c1ae2afa808225f72d5727d6d88e9237f0ab138fde22
     platform: linux/amd64
     user: "1000:1000"
     init: true
@@ -33,7 +33,7 @@ services:
       retries: 5
 
   edge:
-    image: docker.io/vytor/openmausbot:0.1.112-umbrel.2@sha256:8c4c039c56cf47b5facaa95b1585a3c42f76a9c1ad6421805e2b427c7447c941
+    image: docker.io/vytor/openmausbot:0.1.137-umbrel.1@sha256:85c006b0b5ba99873b79c1ae2afa808225f72d5727d6d88e9237f0ab138fde22
     platform: linux/amd64
     user: "1000:1000"
     restart: unless-stopped
@@ -51,7 +51,7 @@ services:
         condition: service_healthy
 
   setup:
-    image: docker.io/vytor/openmausbot:0.1.112-umbrel.2@sha256:8c4c039c56cf47b5facaa95b1585a3c42f76a9c1ad6421805e2b427c7447c941
+    image: docker.io/vytor/openmausbot:0.1.137-umbrel.1@sha256:85c006b0b5ba99873b79c1ae2afa808225f72d5727d6d88e9237f0ab138fde22
     platform: linux/amd64
     user: "1000:1000"
     init: true
@@ -71,7 +71,7 @@ services:
         condition: service_healthy
 
   terminal:
-    image: docker.io/vytor/openmausbot:0.1.112-umbrel.2@sha256:8c4c039c56cf47b5facaa95b1585a3c42f76a9c1ad6421805e2b427c7447c941
+    image: docker.io/vytor/openmausbot:0.1.137-umbrel.1@sha256:85c006b0b5ba99873b79c1ae2afa808225f72d5727d6d88e9237f0ab138fde22
     platform: linux/amd64
     user: "1000:1000"
     init: true
