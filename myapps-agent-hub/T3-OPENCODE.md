@@ -90,3 +90,11 @@ in Agent Hub 1.0.16. The live laptop bridge and its saved connection paths are
 independent of the Agent Hub image. A same-version npm reinstall alone is not
 enough to validate this behavior: exercise T3's actual update operation and
 check its returned updateState and readiness output.
+
+## Avoid a second automatic background server
+
+Startup sets `opencode service set disabled true` using OpenCode's native
+configuration command. T3 keeps the explicit supervised server on port 4096;
+this policy does not stop or disable that server. Terminal clients should use
+`--server http://127.0.0.1:4096` with existing authentication. No process-killing
+watcher is used. The image/migration minimum is 2.1.4, tested with this setting.

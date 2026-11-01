@@ -4,8 +4,7 @@ set -euo pipefail
 
 DEV_HOME=/home/developer
 export PATH="$DEV_HOME/.npm-global/bin:$DEV_HOME/.fnm/aliases/default/bin:$DEV_HOME/.fnm/current/bin:$DEV_HOME/.fnm:$DEV_HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
-OPENCODE_VERSION="${OPENCODE_VERSION:-2.0.22}"
-OPENCHAMBER_VERSION="${OPENCHAMBER_VERSION:-2.1.0}"
+OPENCODE_VERSION="${OPENCODE_VERSION:-2.1.4}"
 command -v node >/dev/null
 command -v npm >/dev/null
 
@@ -28,14 +27,10 @@ JS
 }
 
 UPDATE_OPENCODE=false
-UPDATE_OPENCHAMBER=false
 if needs_upgrade @opencode/cli "$OPENCODE_VERSION" || ! opencode --version >/dev/null 2>&1; then
   UPDATE_OPENCODE=true
 fi
-if needs_upgrade @openchamber/web "$OPENCHAMBER_VERSION"; then
-  UPDATE_OPENCHAMBER=true
-fi
-if [ "$UPDATE_OPENCODE" = false ] && [ "$UPDATE_OPENCHAMBER" = false ]; then
+if [ "$UPDATE_OPENCODE" = false ]; then
   exit 0
 fi
 
@@ -51,7 +46,7 @@ home = Path('/home/developer')
 root = home / '.local/share/opencode-upgrade-backups'
 root.mkdir(parents=True, exist_ok=True, mode=0o700)
 backup = Path(tempfile.mkdtemp(prefix='container-v2-', dir=root))
-for name in ('opencode', 'openchamber'):
+for name in ('opencode',):
     config = home / '.config' / name
     if config.exists():
         shutil.copytree(config, backup / 'config' / name,
@@ -73,7 +68,4 @@ if [ "$UPDATE_OPENCODE" = true ]; then
   npm uninstall -g opencode-ai
   npm install -g --allow-scripts=@opencode/cli "@opencode/cli@$OPENCODE_VERSION"
   opencode --version
-fi
-if [ "$UPDATE_OPENCHAMBER" = true ]; then
-  npm install -g --allow-scripts=node-pty,msgpackr-extract "@openchamber/web@$OPENCHAMBER_VERSION"
 fi

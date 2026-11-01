@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TERM=xterm-256color
 
 # System dependencies: build-essential, git, python3 + pip, curl, unzip, fonts,
-# process management (supervisord), QR generation (qrencode), docker CLI, ttyd terminal,
+# process management (supervisord), QR generation (qrencode), docker CLI,
 # terminal editors (vim, nano), and T3's headless browser libraries.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bash-completion \
@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     docker.io \
     docker-compose-v2 \
+    ffmpeg \
     git \
     jq \
     libasound2t64 \
@@ -22,8 +23,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libdbus-1-3 \
     libexpat1 \
     libgbm1 \
+    libgl1 \
     libglib2.0-0t64 \
     libnss3 \
+    libpulse0 \
+    libvulkan1 \
     libx11-6 \
     libxcb1 \
     libxcomposite1 \
@@ -40,12 +44,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python-is-python3 \
     netcat-openbsd \
     openssh-client \
+    openjdk-17-jre-headless \
     qrencode \
     sqlite3 \
     sudo \
     supervisor \
     tar \
-    ttyd \
     unzip \
     vim \
     wget \
@@ -96,7 +100,8 @@ WORKDIR /home/developer
 
 ENV FNM_DIR=/home/developer/.fnm
 ENV GH_CONFIG_DIR=/home/developer/.config/gh
-ENV PATH=/home/developer/.npm-global/bin:/home/developer/.fnm/aliases/default/bin:/home/developer/.fnm/current/bin:/home/developer/.fnm:/home/developer/.local/bin:/usr/local/bin:/usr/bin:/bin
+ENV ANDROID_HOME=/home/developer/Android/Sdk
+ENV PATH=/home/developer/.npm-global/bin:/home/developer/.fnm/aliases/default/bin:/home/developer/.fnm/current/bin:/home/developer/.fnm:/home/developer/.local/bin:/home/developer/Android/Sdk/platform-tools:/home/developer/Android/Sdk/emulator:/usr/local/bin:/usr/bin:/bin
 
 # Install fnm and Node.js LTS, then set it as the default
 RUN curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir /home/developer/.fnm --skip-shell && \
@@ -104,16 +109,15 @@ RUN curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir /home/d
     /home/developer/.fnm/fnm default lts-latest && \
     node --version && npm --version
 
-# Install the four agent servers as global npm tools (OpenCode, T3 Code, OpenChamber,
-# and Codex CLI) plus Antigravity CLI (agy). allow-scripts opts npm 11 into
+# Install OpenCode, T3 Code, Codex CLI and Claude Code as global npm tools.
+# Antigravity CLI (agy) remains available on demand. allow-scripts opts npm 11 into
 # running native build scripts and selecting OpenCode's platform binary.
-ENV OPENCODE_VERSION=2.0.22
-ENV OPENCHAMBER_VERSION=2.1.0
+ENV OPENCODE_VERSION=2.1.4
 RUN mkdir -p /home/developer/.npm-global && \
     npm config set prefix /home/developer/.npm-global && \
-    npm config set allow-scripts=@opencode/cli,@openai/codex,node-pty,msgpackr-extract --location=user && \
-    npm install -g "@opencode/cli@$OPENCODE_VERSION" t3@nightly "@openchamber/web@$OPENCHAMBER_VERSION" @openai/codex && \
-    opencode --version
+    npm config set allow-scripts=@opencode/cli,@openai/codex,@anthropic-ai/claude-code,node-pty,msgpackr-extract --location=user && \
+    npm install -g "@opencode/cli@$OPENCODE_VERSION" t3@nightly @openai/codex @anthropic-ai/claude-code && \
+    opencode --version && claude --version
 
 # Install Antigravity CLI (agy) for the developer user (creates
 # ~/.local/bin/agy and ~/.antigravity/bin/run_agy_remote_control.sh)
@@ -128,6 +132,10 @@ COPY .zshrc .bashrc ssh_config entrypoint.sh scripts/ /tmp/agent-hub-build/
 COPY scripts/codex-window-starter.py /usr/local/lib/agent-hub/codex-window-starter.py
 COPY --chmod=644 scripts/agent-hub-opencode-server.py /usr/local/bin/agent-hub-opencode-server
 COPY --chmod=755 scripts/agent-hub-provider-npm.py /usr/local/lib/agent-hub/provider-bin/npm
+COPY --chmod=755 scripts/agent-hub-android.py /usr/local/bin/agent-hub-android
+COPY --chmod=755 scripts/agent-hub-emulator.py /usr/local/bin/agent-hub-emulator
+COPY --chmod=755 scripts/agent-hub-emulator.py /usr/local/bin/agent-hub-avdmanager
+COPY --chmod=644 android/Dockerfile android/entrypoint.sh /usr/local/lib/agent-hub/android/
 RUN install -o developer -g developer -m 644 /tmp/agent-hub-build/.zshrc /home/developer/.zshrc && \
     install -o developer -g developer -m 644 /tmp/agent-hub-build/.bashrc /home/developer/.bashrc && \
     install -D -m 644 /tmp/agent-hub-build/ssh_config /etc/ssh/ssh_config.d/50-agent-hub.conf && \
@@ -138,6 +146,9 @@ RUN install -o developer -g developer -m 644 /tmp/agent-hub-build/.zshrc /home/d
     done && \
     rm -rf /tmp/agent-hub-build
 
-EXPOSE 3000 3773 4096 7682
+EXPOSE 3773 4096
 
 ENTRYPOINT ["/entrypoint.sh"]
+
+# Keep stable Tailscale updates and the running daemon aligned under Supervisor.
+COPY --chmod=755 scripts/agent-hub-tailscale-maintenance.py /usr/local/bin/agent-hub-tailscale-maintenance

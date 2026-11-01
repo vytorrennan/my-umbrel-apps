@@ -2,12 +2,12 @@ manifestVersion: 1
 id: myapps-agent-hub
 category: developer
 name: Agent Hub
-version: "1.0.16"
-tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, OpenChamber, Codex)
+version: "1.0.17"
+tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, Codex)
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/icon.svg
 description: >-
-  Runs T3 Code, OpenCode, OpenChamber and Codex CLI servers plus a browser
-  terminal on your Umbrel, so you can drive coding agents from any device while
+  Runs T3 Code, OpenCode and Codex CLI on your Umbrel,
+  so you can drive coding agents from any device while
   the backends run at home. Includes Docker & Docker Compose (isolated DinD sidecar),
   Tailscale & Tailscale SSH state persistence, Git, fnm with Node LTS set as default,
   build-essential, Python with uv and pip, curl, unzip, and JetBrains Mono Nerd Font.
@@ -15,13 +15,11 @@ description: >-
   is mounted into the container at /home/developer/Projects.
 
   Services:
-  - OpenChamber UI: http://<umbrel-ip>:3000
   - OpenCode web:   http://<umbrel-ip>:4096
   - T3 Code:        http://<umbrel-ip>:3773 (pair with a token)
   - Codex CLI:      in the terminal (codex, needs an OPENAI_API_KEY)
-  - Terminal:       http://<umbrel-ip>:7682
 
-  In the browser terminal run "agent-hub-info" for connection details,
+  In a T3 terminal or SSH session run "agent-hub-info" for connection details,
   "set-lan-host <ip>" once to remember your Umbrel's LAN address, and
   "pair-t3" to mint a fresh T3 Code pairing QR code.
 developer: vytorrennan
@@ -35,13 +33,13 @@ gallery:
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/2.png
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/3.png
 releaseNotes: >-
-  - Install the OpenCode update bridge on T3's global npm lookup path
-  - Save nonsecret server paths for maintenance commands without provider environment
-  - Skip duplicate bridge copies to prevent recursive npm dispatch
-  - Automatically reload the shared OpenCode server after CLI version updates
-  - Wait for server version readiness before T3 Code verifies an npm update
-  - Preserve the running server during incomplete updates and avoid restarts for same-version reinstalls
-  - Reuse the saved OpenCode session secret across container restarts
+  - Keep Tailscale on stable releases and restart stale daemon executables
+  - Remove ttyd, OpenChamber and the standalone Antigravity remote-control service
+  - Add Claude Code and persistent Bash/Zsh aliases for retained homes
+  - Preserve agent settings, skills and login state in the home volume
+  - Add optional on-demand Android emulator integration through the DinD sidecar
+  - Keep the Android bridge dormant while the emulator is stopped
+  - Disable duplicate OpenCode background services while retaining T3's shared server
 dependencies: []
 path: ""
 defaultUsername: ""

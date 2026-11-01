@@ -1,6 +1,6 @@
 services:
   web:
-    image: docker.io/vytor/agent-hub:1.0.16
+    image: docker.io/vytor/agent-hub:1.0.17
     container_name: agent-hub
     hostname: dev-machine
     restart: unless-stopped
@@ -11,12 +11,14 @@ services:
     dns_search:
       - feist-nominal.ts.net
     ports:
-      - "3000:3000"
       - "3773:3773"
       - "4096:4096"
-      - "7682:7682"
     volumes:
       - /home/umbrel/umbrel/home/Projects:/home/developer/Projects
+      # Retain the whole home across image updates: Claude .claude + .claude.json,
+      # Codex .codex, OpenCode .config/.local/share, Gemini/Antigravity,
+      # T3 .t3 and shared .agents skills, including their saved login state.
+      # Preserve this volume; never bake these credentials into the image.
       - agent-hub-data:/home/developer
     environment:
       - TERM=xterm-256color

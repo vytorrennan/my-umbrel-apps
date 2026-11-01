@@ -7,7 +7,7 @@ SECRETS="$CFG_DIR/secrets.env"
 LOG_DIR=/var/log/agent-hub
 SUPERVISOR_CONF=/etc/supervisor/supervisord.conf
 
-DEV_PATH="$DEV_HOME/.npm-global/bin:$DEV_HOME/.fnm/aliases/default/bin:$DEV_HOME/.fnm/current/bin:$DEV_HOME/.fnm:$DEV_HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
+DEV_PATH="$DEV_HOME/.npm-global/bin:$DEV_HOME/.fnm/aliases/default/bin:$DEV_HOME/.fnm/current/bin:$DEV_HOME/.fnm:$DEV_HOME/.local/bin:$DEV_HOME/Android/Sdk/platform-tools:$DEV_HOME/Android/Sdk/emulator:/usr/local/bin:/usr/bin:/bin"
 DOCKER_HOST="${DOCKER_HOST:-tcp://dind:2375}"
 
 # ---------------------------------------------------------------------------
@@ -17,6 +17,8 @@ DOCKER_HOST="${DOCKER_HOST:-tcp://dind:2375}"
 # ---------------------------------------------------------------------------
 chown developer:developer "$DEV_HOME" 2>/dev/null || true
 install -d -o developer -g developer "$CFG_DIR" "$DEV_HOME/.local/share" "$DEV_HOME/.local/state" "$DEV_HOME/.cache" 2>/dev/null || true
+# The SDK facade exposes only the managed DinD phone to T3. No downloads or boot.
+su developer -s /bin/bash -c '/usr/local/bin/agent-hub-android install-facade'
 chown developer:developer "$DEV_HOME/.zshrc" "$DEV_HOME/.bashrc" 2>/dev/null || true
 # The home volume preserves older shell configs across image rebuilds.
 # Load the completion package bundled in the image for existing Bash terminals.
@@ -65,6 +67,14 @@ fi
 if [ -f "$DEV_HOME/.zshrc" ] && ! grep -q "DOCKER_HOST" "$DEV_HOME/.zshrc" 2>/dev/null; then
   echo 'export DOCKER_HOST="${DOCKER_HOST:-tcp://dind:2375}"' >> "$DEV_HOME/.zshrc"
 fi
+# Keep the owner's Claude alias available in retained and fresh homes.
+for shell_rc in "$DEV_HOME/.bashrc" "$DEV_HOME/.zshrc"; do
+  if ! grep -q '^alias claude=' "$shell_rc" 2>/dev/null; then
+    echo 'alias claude="claude --dangerously-skip-permissions"' >> "$shell_rc"
+    chown developer:developer "$shell_rc"
+  fi
+done
+
 if [ -f "$DEV_HOME/.bashrc" ] && ! grep -q "alias agy=" "$DEV_HOME/.bashrc" 2>/dev/null; then
   echo 'alias agy="agy --dangerously-skip-permissions"' >> "$DEV_HOME/.bashrc"
 fi
@@ -147,11 +157,16 @@ done
 
 # ---------------------------------------------------------------------------
 # 4. Supervisor config for the services, all running as developer (t3,
-#    opencode, openchamber, ttyd, tailscaled, agy-remote-control).
+#    opencode, tailscaled and optional Android bridge).
 # ---------------------------------------------------------------------------
 # The home volume can hide the npm packages bundled in a rebuilt image.
 # Upgrade old persisted installations before either server opens the database.
 su developer -s /bin/bash -c 'exec /usr/local/bin/agent-hub-opencode-v2'
+# Retained home volumes can hide CLI packages installed in the new image.
+su developer -s /bin/bash -c "export PATH='$DEV_PATH'; command -v claude >/dev/null || npm install -g --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code"
+# T3 uses the supervised server below. Do not let routine CLI commands create
+# a second, persistent managed service. Preserve all other service settings.
+su developer -s /bin/bash -c "export PATH='$DEV_PATH'; opencode service set disabled true"
 
 # Docker blocks the user namespaces Chrome's sandbox needs. Use T3's supported
 # setting to run its browser inside the container without Chrome's sandbox.
@@ -182,7 +197,7 @@ stopasgroup=true
 killasgroup=true
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/t3.log
-environment=PATH="/usr/local/lib/agent-hub/provider-bin:$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",FNM_DIR="$DEV_HOME/.fnm",T3CODE_HOME="$DEV_HOME/.t3",T3CODE_SERVER_BROWSER_SANDBOX="0",DOCKER_HOST="$DOCKER_HOST"
+environment=PATH="/usr/local/lib/agent-hub/provider-bin:$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",FNM_DIR="$DEV_HOME/.fnm",T3CODE_HOME="$DEV_HOME/.t3",T3CODE_SERVER_BROWSER_SANDBOX="0",DOCKER_HOST="$DOCKER_HOST",ANDROID_HOME="$DEV_HOME/Android/Sdk"
 
 [program:opencode]
 command=/usr/bin/python3 /usr/local/bin/agent-hub-opencode-server -- opencode serve --port 4096 --hostname 0.0.0.0 --print-logs
@@ -196,25 +211,6 @@ redirect_stderr=true
 stdout_logfile=$LOG_DIR/opencode.log
 environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",OPENCODE_SERVER_PASSWORD="$PW",OPENCODE_SERVER_USERNAME="opencode",DOCKER_HOST="$DOCKER_HOST"
 
-[program:openchamber]
-command=openchamber serve --port 3000 --host 0.0.0.0 --foreground
-user=developer
-autostart=true
-autorestart=true
-redirect_stderr=true
-stdout_logfile=$LOG_DIR/openchamber.log
-environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",OPENCHAMBER_UI_PASSWORD="$PW",OPENCODE_HOST="http://127.0.0.1:4096",OPENCODE_SKIP_START="true",OPENCODE_SERVER_PASSWORD="$PW",OPENCODE_SERVER_USERNAME="opencode",OPENCODE_JWT_SECRET="$JWT",DOCKER_HOST="$DOCKER_HOST"
-
-[program:ttyd]
-command=ttyd -p 7682 -W -i 0.0.0.0 -t fontSize=14 -t fontFamily="JetBrainsMono Nerd Font, JetBrains Mono, monospace" -t cursorBlink=true -t cursorStyle=bar -t theme="{\"background\": \"#0e131f\", \"foreground\": \"#e2e8f0\", \"cursor\": \"#38bdf8\", \"cursorAccent\": \"#0e131f\", \"selectionBackground\": \"#1e293b\", \"black\": \"#0e131f\", \"red\": \"#ef4444\", \"green\": \"#10b981\", \"yellow\": \"#f59e0b\", \"blue\": \"#3b82f6\", \"magenta\": \"#d946ef\", \"cyan\": \"#06b6d4\", \"white\": \"#f8fafc\", \"brightBlack\": \"#475569\", \"brightRed\": \"#f87171\", \"brightGreen\": \"#34d399\", \"brightYellow\": \"#fbbf24\", \"brightBlue\": \"#60a5fa\", \"brightMagenta\": \"#e879f9\", \"brightCyan\": \"#22d3ee\", \"brightWhite\": \"#ffffff\"}" zsh
-user=developer
-directory=/home/developer
-autostart=true
-autorestart=true
-redirect_stderr=true
-stdout_logfile=$LOG_DIR/ttyd.log
-environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",DOCKER_HOST="$DOCKER_HOST"
-
 [program:tailscaled]
 command=/usr/sbin/tailscaled --tun=userspace-networking --socks5-server=localhost:1055
 user=root
@@ -222,6 +218,15 @@ autostart=true
 autorestart=true
 redirect_stderr=true
 stdout_logfile=$LOG_DIR/tailscaled.log
+
+
+[program:tailscale-maintenance]
+command=/usr/bin/python3 /usr/local/bin/agent-hub-tailscale-maintenance
+user=root
+autostart=true
+autorestart=true
+redirect_stderr=true
+stdout_logfile=/var/log/agent-hub/tailscale-maintenance.log
 
 [program:codex-window-starter]
 command=/usr/bin/python3 $WINDOW_STARTER_DIR/starter.py
@@ -239,33 +244,21 @@ stdout_logfile=$WINDOW_STARTER_DIR/service.log
 stdout_logfile_maxbytes=1MB
 stdout_logfile_backups=2
 environment=PATH="$DEV_PATH",HOME="$DEV_HOME",PYTHONUNBUFFERED="1"
-EOF
 
-# ---------------------------------------------------------------------------
-# 4b. Antigravity Remote Control daemon (always installed, like t3/opencode).
-#     Wrapped in `script` because agy refuses to start without a TTY on stdin.
-# ---------------------------------------------------------------------------
-AGY_WRAPPER="$DEV_HOME/.antigravity/bin/run_agy_remote_control.sh"
-# Heal existing data volumes that predate the bundled agy install.
-if [ ! -x "$AGY_WRAPPER" ]; then
-  su developer -c 'curl -fsSL https://antigravity.google/cli/install.sh | bash || true' || true
-fi
-cat >> "$SUPERVISOR_CONF" <<EOF
-
-[program:agy-remote-control]
-command=/usr/bin/script -qec $AGY_WRAPPER /dev/null
+# No SDK downloads or emulator startup on fresh installations. This reconnects
+# only installations explicitly enabled by agent-hub-android setup/start.
+[program:android-adb]
+command=/usr/local/bin/agent-hub-android bridge
 user=developer
 autostart=true
 autorestart=true
-startsecs=10
-startretries=999
-stopwaitsecs=20
-stopsignal=INT
 stopasgroup=true
 killasgroup=true
 redirect_stderr=true
-stdout_logfile=$LOG_DIR/agy-remote-control.log
-environment=PATH="$DEV_PATH",HOME="$DEV_HOME",TERM="xterm-256color",DOCKER_HOST="$DOCKER_HOST"
+stdout_logfile=$LOG_DIR/android-adb.log
+stdout_logfile_maxbytes=1MB
+stdout_logfile_backups=2
+environment=PATH="$DEV_PATH",HOME="$DEV_HOME",DOCKER_HOST="$DOCKER_HOST",PYTHONUNBUFFERED="1"
 EOF
 
 # ---------------------------------------------------------------------------
@@ -279,10 +272,8 @@ echo ""
 echo "================================================================"
 echo "  Agent Hub is starting"
 echo "----------------------------------------------------------------"
-echo "  OpenChamber UI : http://$LAN_HOST:3000"
 echo "  OpenCode web   : http://$LAN_HOST:4096"
 echo "  T3 Code        : http://$LAN_HOST:3773  (pair with a token)"
-echo "  Terminal       : http://$LAN_HOST:7682"
 echo ""
 echo "  UI/API password : $PW"
 echo "  Saved to         : $CFG_DIR/secrets.env"

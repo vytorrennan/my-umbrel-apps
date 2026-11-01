@@ -22,3 +22,6 @@ alias agy="agy --dangerously-skip-permissions"
 
 # Codex SSD-wear guard: redirect log DB to RAM + block runaway inserts.
 [ -x /usr/local/bin/codex-ssd-guard ] && /usr/local/bin/codex-ssd-guard >/dev/null 2>&1
+
+# Claude Code default permissions mode
+alias claude='claude --dangerously-skip-permissions'
