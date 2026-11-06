@@ -1,14 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-  <rect width="256" height="256" rx="56" fill="#0e131f"/>
-  <g stroke="#38bdf8" stroke-width="6" stroke-linecap="round" opacity="0.5">
-    <line x1="126" y1="114" x2="76" y2="82"/>
-    <line x1="130" y1="114" x2="180" y2="82"/>
-    <line x1="130" y1="142" x2="180" y2="174"/>
-    <line x1="126" y1="142" x2="76" y2="174"/>
-  </g>
-  <circle cx="128" cy="128" r="24" fill="#38bdf8"/>
-  <circle cx="68" cy="70" r="17" fill="#10b981"/>
-  <circle cx="188" cy="70" r="17" fill="#a78bfa"/>
-  <circle cx="188" cy="186" r="17" fill="#f59e0b"/>
-  <circle cx="68" cy="186" r="17" fill="#f43f5e"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Agent Hub">
+  <title>Agent Hub</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#132a57"/><stop offset="1" stop-color="#0a1226"/></linearGradient>
+    <linearGradient id="bgu" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="256" y2="256" gradientTransform="rotate(12 128 150)"><stop offset="0" stop-color="#132a57"/><stop offset="1" stop-color="#0a1226"/></linearGradient>
+    <clipPath id="front"><rect x="-100" y="150" width="456" height="300"/></clipPath>
+  </defs>
+  <rect width="256" height="256" fill="url(#bg)"/>
+  <g transform="rotate(-12 128 150)"><ellipse cx="128" cy="150" rx="106" ry="36" fill="none" stroke="#a5b4ff" stroke-width="9" stroke-linecap="round"/></g><g transform="translate(0 -6)" stroke-linejoin="round" stroke-width="14"><path d="M150 62L206.0 104V162H94.0V104Z" fill="#f472b6" stroke="#f472b6"/><path d="M132 78L188.0 120V178H76.0V120Z" fill="#5eead4" stroke="#5eead4"/><path d="M114 94L170.0 136V194H58.0V136Z" fill="#f8fafc" stroke="#f8fafc"/><path d="M80 140l16 14-16 14" fill="none" stroke="#1e3a8a" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><rect x="106" y="160" width="28" height="10" rx="3" fill="#4c6ef5"/></g><g transform="rotate(-12 128 150)"><ellipse cx="128" cy="150" rx="106" ry="36" fill="none" stroke="#a5b4ff" stroke-width="9" stroke-linecap="round" clip-path="url(#front)"/><circle cx="31.9" cy="134.8" r="14.5" fill="#b197fc" stroke="url(#bgu)" stroke-width="6"/><circle cx="221.6" cy="166.9" r="15.5" fill="#b197fc" stroke="url(#bgu)" stroke-width="6"/></g>
 </svg>
