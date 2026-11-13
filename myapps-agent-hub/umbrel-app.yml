@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-agent-hub
 category: developer
 name: Agent Hub
-version: "1.0.17"
+version: "1.0.18"
 tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, Codex)
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/icon.svg
 description: >-
@@ -33,13 +33,9 @@ gallery:
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/2.png
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/3.png
 releaseNotes: >-
-  - Keep Tailscale on stable releases and restart stale daemon executables
-  - Remove ttyd, OpenChamber and the standalone Antigravity remote-control service
-  - Add Claude Code and persistent Bash/Zsh aliases for retained homes
-  - Preserve agent settings, skills and login state in the home volume
-  - Add optional on-demand Android emulator integration through the DinD sidecar
-  - Keep the Android bridge dormant while the emulator is stopped
-  - Disable duplicate OpenCode background services while retaining T3's shared server
+  - Link shared ~/.agents/skills into Claude Code automatically with the skills-sync service
+  - Keep Claude-only skills in ~/.claude/skills private and leave Claude's synced skills untouched
+  - Choose which shared skills Claude skips in ~/.config/skills-sync/ignore
 dependencies: []
 path: ""
 defaultUsername: ""

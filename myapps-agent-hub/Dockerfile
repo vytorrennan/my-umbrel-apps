@@ -135,6 +135,7 @@ COPY --chmod=755 scripts/agent-hub-provider-npm.py /usr/local/lib/agent-hub/prov
 COPY --chmod=755 scripts/agent-hub-android.py /usr/local/bin/agent-hub-android
 COPY --chmod=755 scripts/agent-hub-emulator.py /usr/local/bin/agent-hub-emulator
 COPY --chmod=755 scripts/agent-hub-emulator.py /usr/local/bin/agent-hub-avdmanager
+COPY --chmod=755 scripts/skills-sync.py /usr/local/bin/skills-sync
 COPY --chmod=644 android/Dockerfile android/entrypoint.sh /usr/local/lib/agent-hub/android/
 RUN install -o developer -g developer -m 644 /tmp/agent-hub-build/.zshrc /home/developer/.zshrc && \
     install -o developer -g developer -m 644 /tmp/agent-hub-build/.bashrc /home/developer/.bashrc && \

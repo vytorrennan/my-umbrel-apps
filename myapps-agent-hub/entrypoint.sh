@@ -45,6 +45,13 @@ install -o developer -g developer -m 755 \
 touch "$WINDOW_STARTER_DIR/service.log"
 chown developer:developer "$WINDOW_STARTER_DIR/service.log"
 
+# Claude Code reads only ~/.claude/skills, so skills-sync links each shared
+# ~/.agents/skills folder there. Links, ignore file and log stay in the home volume.
+SKILLS_SYNC_DIR="$DEV_HOME/.local/state/skills-sync"
+install -d -o developer -g developer "$SKILLS_SYNC_DIR"
+touch "$SKILLS_SYNC_DIR/service.log"
+chown developer:developer "$SKILLS_SYNC_DIR/service.log"
+
 # T3 imports a login-shell PATH, which can discard its Supervisor PATH prefix.
 # Keep the npm bridge in the existing home bin directory used by that shell.
 install -d -o developer -g developer "$DEV_HOME/.local/bin"
@@ -244,6 +251,21 @@ stdout_logfile=$WINDOW_STARTER_DIR/service.log
 stdout_logfile_maxbytes=1MB
 stdout_logfile_backups=2
 environment=PATH="$DEV_PATH",HOME="$DEV_HOME",PYTHONUNBUFFERED="1"
+
+[program:skills-sync]
+command=/usr/bin/python3 /usr/local/bin/skills-sync watch
+directory=$DEV_HOME
+user=developer
+autostart=true
+autorestart=true
+startsecs=2
+stopasgroup=true
+killasgroup=true
+redirect_stderr=true
+stdout_logfile=$SKILLS_SYNC_DIR/service.log
+stdout_logfile_maxbytes=1MB
+stdout_logfile_backups=2
+environment=HOME="$DEV_HOME",PYTHONUNBUFFERED="1"
 
 # No SDK downloads or emulator startup on fresh installations. This reconnects
 # only installations explicitly enabled by agent-hub-android setup/start.
