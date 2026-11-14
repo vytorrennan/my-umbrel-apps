@@ -15,6 +15,8 @@
 //
 // The build fails if the code to replace isn't found, so a server update
 // can't silently drop the fix.
+//
+// Full write-up and reproduction steps: TRACKER-LEAK.md
 
 const fs = require("fs");
 
