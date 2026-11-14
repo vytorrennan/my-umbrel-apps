@@ -14,7 +14,8 @@ gpu_check() {
     echo "gpu-check: /dev/dri contents (numeric owner/group):"
     ls -ln /dev/dri | sed 's/^/gpu-check:   /'
     if [[ ! -r $dev || ! -w $dev ]]; then
-        echo "gpu-check: $dev is not readable and writable by this user; add its group id to group_add"
+        echo "gpu-check: $dev can't be opened. Check that group_add has its group id (listed above)" \
+            "and that device_cgroup_rules allows 'c 226:* rmw'"
         return
     fi
     local out

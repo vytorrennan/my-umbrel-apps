@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-stremio
 category: media
 name: Stremio
-version: "1.0.1"
+version: "1.0.2"
 tagline: The latest Stremio web app with its streaming server, hosted at home
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-stremio/icon.svg
 description: >-
@@ -24,6 +24,7 @@ support: https://github.com/vytorrennan/my-umbrel-apps/issues
 port: 11471
 gallery: []
 releaseNotes: >-
+  - Pass the Intel GPU through in a way umbrelOS keeps, so hardware transcoding can be enabled
   - Log a GPU check at startup that explains why hardware transcoding is or isn't available
 dependencies: []
 path: ""
