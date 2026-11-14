@@ -124,11 +124,11 @@ v4.22.4 ran locally, unmodified and with the 1.0.3 patch, with a preload script 
 counts live announce timers and UDP sockets. Each opened the same torrent
 with 7 UDP trackers and was then told to close it (`GET /<infoHash>/remove`).
 
-| | v4.22.4 | v4.22.4 + patch (same fix as v4.22.5) |
-|---|---|---|
-| Live tracker announce timers after 3 minutes | 49, growing by 7 every 30 s | 7, flat |
-| After closing the torrent | 49, never freed | 0 |
-| Trackers still return peers on each 30 s run | yes | yes |
+| | v4.22.4 | v4.22.4 + patch | v4.22.5 |
+|---|---|---|---|
+| Live tracker announce timers after 3 minutes | 49, growing by 7 every 30 s | 7, flat | 7, flat |
+| After closing the torrent | 49, never freed | 0 | 0 |
+| Trackers still return peers on each 30 s run | yes | yes | yes |
 
 The preload script (`probe.js`):
 
