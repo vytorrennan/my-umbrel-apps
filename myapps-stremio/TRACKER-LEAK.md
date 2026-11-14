@@ -1,10 +1,13 @@
 # Streaming server tracker client leak
 
-Stremio's streaming server (`server.js`, v4.22.4 and possibly other versions)
-leaks BitTorrent tracker clients. Once the app has been up for a few hours
-with normal use, new torrents get no answers from trackers and buffer
-forever. This image patches the leak at build time with
-[`patch-server.js`](patch-server.js). It shipped in app version 1.0.3.
+Stremio's streaming server (`server.js`) up to v4.22.4 leaks BitTorrent
+tracker clients. Once the app has been up for a few hours with normal use,
+new torrents get no answers from trackers and buffer forever.
+
+**Status: fixed upstream in streaming server v4.22.5**, which this app uses
+from version 1.0.4. App version 1.0.3 shipped a local patch for it
+(`patch-server.js`, now removed). The rest of this page records the
+investigation and how to check that the bug stays fixed.
 
 ## Symptom
 
@@ -94,32 +97,34 @@ state given enough uptime.
 
 ## Fix
 
-[`patch-server.js`](patch-server.js) runs in the Dockerfile right after the
-checksum check of the downloaded server.js. It replaces the `Tracker`
-wrapper with one that:
+The leaking code isn't in a Stremio repository. It comes from the small
+`peer-search` library that the server bundles,
+[Ivshti/peer-search](https://github.com/Ivshti/peer-search). It was fixed
+there in PR #5, "Fix tracker lookups and tracker client leak", merged on
+2026-10-24. That fix shipped in streaming server v4.22.5, published on
+2026-10-27. The fixed `Tracker` wrapper:
 
-- creates a single client on the first `run()`;
-- calls `client.update()` on later runs, which re-announces with the same
-  client;
+- creates a single client per tracker and calls `client.update()` on later
+  runs;
 - adds `close()`, which destroys the client when the torrent closes;
-- handles the client's `warning` and `error` events, so an unhandled
-  `error` can't crash the process.
+- resolves UDP tracker hostnames itself, caching each answer for 10 minutes,
+  and skips IPv6 peers.
 
-The search still announces every 30 seconds, exactly as upstream does. Only
-the leak is gone.
+Search the bundled server.js for `function Tracker(url, opts, infoHash)` to
+check which version a build has. The fixed one has a `this.close = function`
+and calls `client.update()`.
 
-The patch looks for the exact original code and fails the image build if it
-doesn't find it exactly once. If a server update changes or fixes that code,
-the build stops and the patch has to be reviewed, so the image can't ship
-with the fix silently missing.
+App version 1.0.3, built on v4.22.4, made the same change with a build-time
+patch, `patch-server.js`. App version 1.0.4 moved to v4.22.5 and dropped the
+patch.
 
 ## Verification
 
-Both servers ran locally, unmodified and patched, with a preload script that
+v4.22.4 ran locally, unmodified and with the 1.0.3 patch, with a preload script that
 counts live announce timers and UDP sockets. Each opened the same torrent
 with 7 UDP trackers and was then told to close it (`GET /<infoHash>/remove`).
 
-| | Original server.js | Patched server.js |
+| | v4.22.4 | v4.22.4 + patch (same fix as v4.22.5) |
 |---|---|---|
 | Live tracker announce timers after 3 minutes | 49, growing by 7 every 30 s | 7, flat |
 | After closing the torrent | 49, never freed | 0 |
@@ -166,14 +171,7 @@ trackers and drops to 0 after `/remove`.
 
 ## When updating the streaming server
 
-1. Bump `STREMIO_SERVER_VERSION` and `STREMIO_SERVER_SHA256` in the
-   Dockerfile and build.
-2. If the build fails with `patch-server: expected the Tracker code once`,
-   find the `function Tracker(url, opts, infoHash)` wrapper in the new
-   server.js:
-   - If upstream fixed the leak (one client per tracker, destroyed on
-     close), delete the patch step from the Dockerfile.
-   - Otherwise, update `before` and `after` in patch-server.js to match the
-     new code.
-3. Run the reproduction above against the new image's server.js to confirm
-   that the timer count stays flat.
+After bumping `STREMIO_SERVER_VERSION` and `STREMIO_SERVER_SHA256` in the
+Dockerfile, run the reproduction above against the new server.js.
+`announceTimersLive` should equal the number of trackers and drop to 0 after
+`/remove`. If it keeps growing, the leak is back.

@@ -3,8 +3,8 @@
 #
 # Bump these to update. The server checksum must match the downloaded file.
 ARG STREMIO_WEB_REF=v5.1.0
-ARG STREMIO_SERVER_VERSION=v4.22.4
-ARG STREMIO_SERVER_SHA256=0b5b0bfc0165dad7f6397335594050832aa5760d7098123f739292efb80794ba
+ARG STREMIO_SERVER_VERSION=v4.22.5
+ARG STREMIO_SERVER_SHA256=b368d339709584879f024fa5fabe499e583b25881b2375a6192625c5277aa5b0
 
 # ---- Build the web UI ----------------------------------------------------
 FROM node:22-bookworm-slim AS web
@@ -35,11 +35,6 @@ RUN mkdir -p /opt/stremio-server \
     && curl -fsSL "https://dl.strem.io/server/${STREMIO_SERVER_VERSION}/desktop/server.js" \
         -o /opt/stremio-server/server.js \
     && echo "${STREMIO_SERVER_SHA256}  /opt/stremio-server/server.js" | sha256sum -c -
-
-# Fix the server's tracker client leak, which after hours of use leaves new
-# torrents without peers (buffering forever). See patch-server.js.
-COPY patch-server.js /tmp/patch-server.js
-RUN node /tmp/patch-server.js /opt/stremio-server/server.js && rm /tmp/patch-server.js
 
 COPY --from=web /src/build /srv/stremio-web
 COPY --from=web /web-commit /etc/stremio-web-commit
