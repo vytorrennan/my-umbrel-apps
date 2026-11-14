@@ -1,0 +1,33 @@
+manifestVersion: 1
+id: myapps-stremio
+category: media
+name: Stremio
+version: "1.0.0"
+tagline: The latest Stremio web app with its streaming server, hosted at home
+icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-stremio/icon.svg
+description: >-
+  Runs Stremio on your Umbrel: the open-source stremio-web UI (v5.1.0, built
+  from source) together with the official Stremio streaming server (v4.22.4),
+  which handles torrents, subtitles and ffmpeg transcoding.
+
+
+  Both are served from one address, so the UI finds its streaming server
+  automatically. The first time you open the app in a browser, confirm the
+  prompt to use this streaming server. Video is streamed from your Umbrel to
+  whatever device you watch on, over your LAN or Tailscale.
+developer: Stremio
+website: https://www.stremio.com
+submitter: vytorrennan
+submission: https://github.com/vytorrennan/my-umbrel-apps
+repo: https://github.com/Stremio/stremio-web
+support: https://github.com/vytorrennan/my-umbrel-apps/issues
+port: 11471
+gallery: []
+releaseNotes: >-
+  - First release: stremio-web v5.1.0 and streaming server v4.22.4
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
+torOnly: false
+permissions: []

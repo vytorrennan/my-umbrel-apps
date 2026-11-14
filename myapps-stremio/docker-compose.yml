@@ -1,0 +1,29 @@
+services:
+  web:
+    image: docker.io/vytor/stremio:1.0.0
+    container_name: stremio
+    restart: unless-stopped
+    command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+    ports:
+      - "11471:8080"
+    depends_on:
+      - server
+
+  server:
+    image: docker.io/vytor/stremio:1.0.0
+    container_name: stremio-server
+    restart: unless-stopped
+    # Settings and the torrent cache (2 GB by default, change it in
+    # Settings > Streaming) survive updates in this volume.
+    volumes:
+      - stremio-data:/home/node/.stremio-server
+    # Intel GPU for hardware video encoding (VAAPI). 44 and 991 are the
+    # host's video and render group ids that own /dev/dri.
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - "44"
+      - "991"
+
+volumes:
+  stremio-data:

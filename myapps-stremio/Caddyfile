@@ -1,0 +1,40 @@
+{
+	admin off
+	auto_https off
+	persist_config off
+}
+
+:8080 {
+	# Point the UI at this same origin as its streaming server. stremio-web
+	# reads ?streamingServerUrl= on load, saves it, and selects it (it asks
+	# once per browser to confirm a new server). The browser builds the URL
+	# from its own origin, so it stays right behind an HTTPS proxy such as
+	# `tailscale serve`, where Caddy itself only sees plain http.
+	@bare_root {
+		path /
+		not query streamingServerUrl=*
+	}
+	handle @bare_root {
+		header Content-Type "text/html; charset=utf-8"
+		header Cache-Control "no-store"
+		respond `<!doctype html><meta charset="utf-8"><title>Stremio</title><script>location.replace("/?streamingServerUrl=" + encodeURIComponent(location.origin + "/") + location.hash)</script>` 200
+	}
+
+	# Static UI files. Everything else belongs to the streaming server, whose
+	# routes (/:infoHash/:idx, /hlsv2, /settings, ...) are very generic.
+	@ui path / /index.html /manifest.json /service-worker.js /workbox-*.js /favicons/* /fonts/* /images/* /screenshots/* /__WEB_COMMIT__/*
+	handle @ui {
+		root * /srv/stremio-web
+		header /index.html Cache-Control "no-cache"
+		header / Cache-Control "no-cache"
+		encode zstd gzip
+		file_server
+	}
+
+	handle {
+		reverse_proxy server:11470 {
+			# Stream video bytes straight through without buffering.
+			flush_interval -1
+		}
+	}
+}
