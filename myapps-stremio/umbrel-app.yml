@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-stremio
 category: media
 name: Stremio
-version: "1.0.0"
+version: "1.0.1"
 tagline: The latest Stremio web app with its streaming server, hosted at home
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-stremio/icon.svg
 description: >-
@@ -24,7 +24,7 @@ support: https://github.com/vytorrennan/my-umbrel-apps/issues
 port: 11471
 gallery: []
 releaseNotes: >-
-  - First release: stremio-web v5.1.0 and streaming server v4.22.4
+  - Log a GPU check at startup that explains why hardware transcoding is or isn't available
 dependencies: []
 path: ""
 defaultUsername: ""

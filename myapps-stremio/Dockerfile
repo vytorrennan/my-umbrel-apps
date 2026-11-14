@@ -53,6 +53,7 @@ RUN mkdir -p /home/node/.stremio-server && chown -R node:node /home/node/.stremi
 # The wrapper enables GPU (VAAPI) encoding on Intel GPUs that can't decode
 # HEVC. i965-va-driver covers older Intel GPUs (up to Coffee Lake).
 COPY --chmod=755 ffmpeg-wrapper.sh /usr/local/bin/stremio-ffmpeg
+COPY --chmod=755 start-server.sh /usr/local/bin/stremio-server
 
 ENV FFMPEG_BIN=/usr/local/bin/stremio-ffmpeg \
     FFPROBE_BIN=/usr/bin/ffprobe
@@ -62,4 +63,4 @@ WORKDIR /home/node
 EXPOSE 8080 11470
 
 # Default: the streaming server. docker-compose runs Caddy from the same image.
-CMD ["node", "/opt/stremio-server/server.js"]
+CMD ["/usr/local/bin/stremio-server"]
