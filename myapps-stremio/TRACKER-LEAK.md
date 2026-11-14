@@ -120,7 +120,7 @@ patch.
 
 ## Verification
 
-v4.22.4 ran locally, unmodified and with the 1.0.3 patch, with a preload script that
+v4.22.4 (unmodified and with the 1.0.3 patch) and v4.22.5 ran locally with a preload script that
 counts live announce timers and UDP sockets. Each opened the same torrent
 with 7 UDP trackers and was then told to close it (`GET /<infoHash>/remove`).
 
