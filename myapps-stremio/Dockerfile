@@ -36,6 +36,11 @@ RUN mkdir -p /opt/stremio-server \
         -o /opt/stremio-server/server.js \
     && echo "${STREMIO_SERVER_SHA256}  /opt/stremio-server/server.js" | sha256sum -c -
 
+# Let HLS pass through video whose keyframes are far apart instead of
+# re-encoding it on the CPU. See patch-server.js and HLS-PASSTHROUGH.md.
+COPY patch-server.js /tmp/patch-server.js
+RUN node /tmp/patch-server.js /opt/stremio-server/server.js && rm /tmp/patch-server.js
+
 COPY --from=web /src/build /srv/stremio-web
 COPY --from=web /web-commit /etc/stremio-web-commit
 COPY Caddyfile /etc/caddy/Caddyfile
