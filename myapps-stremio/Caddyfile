@@ -5,6 +5,18 @@
 }
 
 :8080 {
+	# The player hands the server URLs of the server's own streams
+	# (?mediaURL= for /hlsv2 probe and transcoding, ?videoUrl= for subtitle
+	# lookups), built from the browser's origin, such as
+	# https://<name>.ts.net:11471/<infoHash>/<idx>. The server container can't
+	# reach that public address, so the probe failed: the player then played
+	# the raw file, with no audio language menu or embedded subtitles. Point
+	# such URLs at the server directly. URLs for other hosts are left alone.
+	@self_media expression `{http.request.uri.query.mediaURL}.matches("^https?://" + {http.request.host} + "(:[0-9]+)?/")`
+	uri @self_media query mediaURL ^https?://[^/]+/ http://127.0.0.1:11470/
+	@self_video expression `{http.request.uri.query.videoUrl}.matches("^https?://" + {http.request.host} + "(:[0-9]+)?/")`
+	uri @self_video query videoUrl ^https?://[^/]+/ http://127.0.0.1:11470/
+
 	# Point the UI at this same origin as its streaming server. stremio-web
 	# reads ?streamingServerUrl= on load, saves it, and selects it (it asks
 	# once per browser to confirm a new server). The browser builds the URL

@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-stremio
 category: media
 name: Stremio
-version: "1.0.4"
+version: "1.0.5"
 tagline: The latest Stremio web app with its streaming server, hosted at home
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-stremio/icon.svg
 description: >-
@@ -24,7 +24,7 @@ support: https://github.com/vytorrennan/my-umbrel-apps/issues
 port: 11471
 gallery: []
 releaseNotes: >-
-  - Update the streaming server to v4.22.5, which includes the upstream fix for torrents buffering forever after the app had been running for a while
+  - Fix the audio language menu and embedded subtitles missing for files with several audio tracks (the server could not probe files when the app was opened through its HTTPS address)
 dependencies: []
 path: ""
 defaultUsername: ""
