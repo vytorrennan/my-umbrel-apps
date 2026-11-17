@@ -149,6 +149,9 @@ Fix: `patch-web.js` sets `maxBufferHole: 0.5` in stremio-video's
 0.5 s as soon as it detects the stall. These gaps are 40 to 210 ms, so
 nothing visible is skipped. The build fails if the line isn't found.
 
+Confirmed on 1.0.8: S01E02 played from 479 s for about 7 minutes, past both
+keyframes, with no `DEMUXER_UNDERFLOW` or recovery seek in media-internals.
+
 Check a build with:
 
 ```sh
