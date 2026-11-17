@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-stremio
 category: media
 name: Stremio
-version: "1.0.7"
+version: "1.0.8"
 tagline: The latest Stremio web app with its streaming server, hosted at home
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-stremio/icon.svg
 description: >-
@@ -24,7 +24,7 @@ support: https://github.com/vytorrennan/my-umbrel-apps/issues
 port: 11471
 gallery: []
 releaseNotes: >-
-  - Fix playback getting stuck partway through some episodes (x265 releases with open-GOP keyframes), caused by gaps in the video timeline the server sent
+  - Fix short (about 5 second) stalls in the web player at some keyframes of x265 releases, by letting it skip the tiny buffer gaps Chrome reports there
 dependencies: []
 path: ""
 defaultUsername: ""

@@ -17,7 +17,11 @@ RUN corepack enable
 WORKDIR /src
 # webpack names the asset folder after `git rev-parse HEAD`, so keep .git.
 RUN git clone --depth 1 --branch "${STREMIO_WEB_REF}" https://github.com/Stremio/stremio-web.git .
-RUN pnpm install --frozen-lockfile && pnpm build && git rev-parse HEAD > /web-commit
+RUN pnpm install --frozen-lockfile
+# Let the player jump the tiny buffer gaps Chrome reports at open-GOP
+# keyframes instead of stalling. See patch-web.js.
+COPY patch-web.js /tmp/patch-web.js
+RUN node /tmp/patch-web.js /src && pnpm build && git rev-parse HEAD > /web-commit
 
 # ---- Runtime ---------------------------------------------------------------
 FROM node:22-bookworm-slim

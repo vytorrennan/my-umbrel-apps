@@ -1,6 +1,6 @@
 # Audio language menu and HLS passthrough
 
-Three fixes that work together so files with several audio tracks get an audio
+Four fixes that work together so files with several audio tracks get an audio
 language menu and still play smoothly on the Umbrel's CPU.
 
 ## How the player picks a playback mode
@@ -122,6 +122,42 @@ ffprobe -v error -show_entries packet=pts_time,dts_time -of csv=p=0 cat.mp4
 There should be no pts jumps larger than one frame and no dts going
 backwards.
 
+Reported upstream as
+[Stremio/stremio-bugs#2941](https://github.com/Stremio/stremio-bugs/issues/2941).
+
+## 4. Chrome stalled briefly at open-GOP keyframes (app 1.0.8)
+
+On 1.0.7, S01E02 played to the end, but Helium's `chrome://media-internals`
+log showed two stalls of about 5 seconds. Each was a `DEMUXER_UNDERFLOW` on
+video, followed by an hls.js seek just past it (to 519.89 s and 618.71 s).
+They came right after the keyframes at 516.98 s and 615.66 s, which have
+leading pictures. Chrome logged:
+
+```
+Warning: presentation time of most recently processed random access point
+(517.058 s) is later than the presentation time of a non-keyframe (517.017 s)
+that depends on it. This type of random access point is not well supported
+by MSE; buffered range reporting may be less precise.
+```
+
+Chrome's MSE reports a gap of a frame or two before such keyframes even when
+the data is there. stremio-video sets hls.js `maxBufferHole: 0`, so hls.js
+only gets past the gap through its slower stall recovery.
+
+Fix: `patch-web.js` sets `maxBufferHole: 0.5` in stremio-video's
+`hlsConfig.js` before the web UI is built. hls.js then jumps gaps up to
+0.5 s as soon as it detects the stall. These gaps are 40 to 210 ms, so
+nothing visible is skipped. The build fails if the line isn't found.
+
+Check a build with:
+
+```sh
+docker run --rm vytor/stremio:<tag> sh -c 'grep -o "maxBufferHole:[^,]*" -r /srv/stremio-web --include=main.js'
+```
+
+It should print `maxBufferHole:.5` (the `.1` next to it is hls.js's own
+default and isn't used).
+
 ## Reproducing
 
 Run the image with a local copy of a file and debug logging. Bind mounts
@@ -148,3 +184,7 @@ docker exec sdbg bash -c '
 `patch-server.js` fails the build if any code it changes is gone. If that
 happens, look for `Video segment duration cannot be bounded` in the new
 server.js, find the new bound, and rerun the test above.
+
+`patch-web.js` fails the build if stremio-video's `maxBufferHole: 0` line
+is gone after a stremio-web update. Check whether the new stremio-video
+still needs the change before updating the patch.
