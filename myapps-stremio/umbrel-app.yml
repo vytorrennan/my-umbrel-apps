@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-stremio
 category: media
 name: Stremio
-version: "1.0.6"
+version: "1.0.7"
 tagline: The latest Stremio web app with its streaming server, hosted at home
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-stremio/icon.svg
 description: >-
@@ -24,7 +24,7 @@ support: https://github.com/vytorrennan/my-umbrel-apps/issues
 port: 11471
 gallery: []
 releaseNotes: >-
-  - Play files whose keyframes are far apart (common in x265 releases) without re-encoding them, which made multi-audio files stutter
+  - Fix playback getting stuck partway through some episodes (x265 releases with open-GOP keyframes), caused by gaps in the video timeline the server sent
 dependencies: []
 path: ""
 defaultUsername: ""

@@ -1,6 +1,6 @@
 # Audio language menu and HLS passthrough
 
-Two fixes that work together so files with several audio tracks get an audio
+Three fixes that work together so files with several audio tracks get an audio
 language menu and still play smoothly on the Umbrel's CPU.
 
 ## How the player picks a playback mode
@@ -68,6 +68,60 @@ tracks, keyframe gaps up to 10.43 s):
 | Segment lengths | 4 s | 4 to 10.4 s |
 | Decodes cleanly from segment 1 and from segment 50 | yes | yes |
 
+## 3. Passthrough video had holes in its timeline (app 1.0.7)
+
+With passthrough working, *Dead Mount Death Play* S01E02 still got stuck
+partway through. The episode was fully downloaded and the server answered
+every segment request in under a second; the player had simply stopped.
+
+The server runs ffmpeg with `-c:v copy -movflags frag_keyframe+...`, so
+each keyframe starts an fMP4 fragment, and it then rewrites every
+fragment's decode time (`tfdt`) to the fragment's earliest presentation
+time from its `sidx`:
+
+```js
+mp4.updateBaseMediaDecodeTime({ ..., baseMediaDecodeTime: sidx.earliestPresentationTime, ... })
+```
+
+For most fragments that changes nothing: ffmpeg's `tfdt` already equals
+the earliest presentation time, to within 16 ticks of a 1/16000 timescale.
+But x265 uses open GOPs by default, so some keyframes are followed by
+leading pictures, frames decoded after the keyframe but shown before it.
+In those fragments the earliest presentation time is earlier, and the
+rewrite moves the whole fragment later by up to a few hundred ms. That
+leaves a hole before the fragment and an overlap after it.
+
+Concatenating every video segment of S01E02 from the unpatched server
+(34,046 frames, none actually missing) showed:
+
+| | v4.22.5 | v4.22.5 + patch |
+|---|---|---|
+| Holes over 60 ms | 9 (40 to 210 ms) | 0 |
+| Duplicate timestamps | 5 | 0 |
+| Decode times going backwards | 6 | 0 |
+| Same, for a session started at segment 100 (a seek) | 5 / 2 / 3 | 0 / 0 / 0 |
+
+The holes sit exactly at keyframes with leading pictures (450.37 s with 5,
+516.98 s with 2, and so on). The browser's buffer then has gaps and
+overlapping frames, and Stremio's hls.js config (`maxBufferHole: 0`) won't
+jump gaps, so playback can stall for good.
+
+Fix: `patch-server.js` skips the rewrite for passed-through video and keeps
+ffmpeg's decode times, which are continuous by construction. Re-encoded
+video still gets the rewrite. After a seek, the timestamps are the same as
+before (ffmpeg's first `tfdt` 118784 vs the rewritten 118800), so audio
+sync and seeking behave as they did.
+
+To check a file, concatenate the init segment and every video segment of a
+session and look at the packet timestamps:
+
+```sh
+ffprobe -v error -show_entries packet=pts_time,dts_time -of csv=p=0 cat.mp4
+```
+
+There should be no pts jumps larger than one frame and no dts going
+backwards.
+
 ## Reproducing
 
 Run the image with a local copy of a file and debug logging. Bind mounts
@@ -91,6 +145,6 @@ docker exec sdbg bash -c '
 
 ## When updating the streaming server
 
-`patch-server.js` fails the build if the line it changes is gone. If that
+`patch-server.js` fails the build if any code it changes is gone. If that
 happens, look for `Video segment duration cannot be bounded` in the new
 server.js, find the new bound, and rerun the test above.

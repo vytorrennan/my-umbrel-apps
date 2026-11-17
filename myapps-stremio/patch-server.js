@@ -28,6 +28,28 @@ const patches = [
         before: "maxVideoSegmentDurationTs = 2 * segmentDurationTs",
         after: "maxVideoSegmentDurationTs = 3 * segmentDurationTs",
     },
+    {
+        // Passed-through video keeps ffmpeg's own decode times. The server
+        // set each fragment's decode time (tfdt) to its earliest
+        // presentation time. That is a no-op for most fragments but shifts
+        // fragments that start with open-GOP leading pictures (frames
+        // decoded after the keyframe but shown before it) by up to a few
+        // hundred ms, leaving holes and overlaps in the timeline that make
+        // the browser stall. Re-encoded video keeps the old behaviour.
+        name: "HLS passthrough video keeps ffmpeg's decode times",
+        before: `                        mp4.updateBaseMediaDecodeTime({
+                            buffer: mediaSegmentBuffer,
+                            baseMediaDecodeTime: sidx.earliestPresentationTime,
+                            trackId: 1,
+                            boxes: boxes
+                        }), duration += `,
+        after: `                        convertOptions.video && convertOptions.video.transcode && mp4.updateBaseMediaDecodeTime({
+                            buffer: mediaSegmentBuffer,
+                            baseMediaDecodeTime: sidx.earliestPresentationTime,
+                            trackId: 1,
+                            boxes: boxes
+                        }), duration += `,
+    },
 ];
 
 for (const { name, before, after } of patches) {
