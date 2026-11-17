@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-stremio
 category: media
 name: Stremio
-version: "1.0.9"
+version: "1.0.10"
 tagline: The latest Stremio web app with its streaming server, hosted at home
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-stremio/icon.svg
 description: >-
@@ -24,7 +24,7 @@ support: https://github.com/vytorrennan/my-umbrel-apps/issues
 port: 11471
 gallery: []
 releaseNotes: >-
-  - Fix subtitle lines showing tags like {\an8} as text (common in OpenSubtitles subtitles). Lines tagged to appear at the top now show at the top
+  - Subtitle tags like {\i1} and {\b1} now show as italic and bold, tag-only lines no longer add empty lines, and overlapping tags render correctly (matches the fix proposed upstream to Stremio)
 dependencies: []
 path: ""
 defaultUsername: ""

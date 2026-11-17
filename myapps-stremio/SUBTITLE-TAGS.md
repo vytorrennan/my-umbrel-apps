@@ -20,14 +20,22 @@ as text, at the bottom of the screen:
 
 Embedded ASS tracks are not affected; they go through the ASS renderer.
 
-## Fix (app 1.0.9)
+## Fix (app 1.0.9, updated in 1.0.10)
 
-`patch-web.js` changes stremio-video before the web UI is built:
+`patch-web.js` changes stremio-video before the web UI is built. Since 1.0.10
+the parser code is the same as the upstream PR
+[Stremio/stremio-video#212](https://github.com/Stremio/stremio-video/pull/212),
+including the changes a Stremio maintainer asked for in review.
 
-- `subtitlesParser.js`: removes every `{\...}` tag from each cue, turns a
-  literal `\N` into a line break, and marks cues tagged `\an7`, `\an8` or
-  `\an9` as top cues.
-- `subtitlesRenderer.js`: passes that mark on to the cue's DOM node.
+- `subtitlesParser.js`, for each cue:
+  - lines tagged `\an7`, `\an8` or `\an9` are marked as top cues;
+  - `\i` and `\b` become `<i>` and `<b>`, kept nested because vtt.js only
+    closes the innermost tag; `\b` weights below 700 are not bold;
+  - other `{\...}` tags are removed; a tag must close on its own line;
+  - `\N` and `\n` become a line break and `\h` a space;
+  - cues with nothing left after removing tags (like a lone
+    `{\fad(200,200)}`) are skipped.
+- `subtitlesRenderer.js`: passes the top mark on to the cue's DOM node.
 - `withHTMLSubtitles.js`: the subtitles box now covers the whole video
   (`pointer-events: none`, so clicks still reach the video). Top cues go in
   a box 3% from the top. All other cues go in a box at the bottom, which
