@@ -36,19 +36,37 @@ const patches = [
         // decoded after the keyframe but shown before it) by up to a few
         // hundred ms, leaving holes and overlaps in the timeline that make
         // the browser stall. Re-encoded video keeps the old behaviour.
-        name: "HLS passthrough video keeps ffmpeg's decode times",
+        //
+        // After a seek the server starts a new ffmpeg, and ffmpeg's decode
+        // times then count from the seek point instead of from the start of
+        // the file. hls.js still plays the video, but it takes that
+        // difference as the stream's start time and shifts every embedded
+        // subtitle cue by it, so after any seek or resume no subtitles show.
+        // Each ffmpeg run therefore gets one fixed offset, taken from its
+        // first fragment, that puts its decode times back on the file's
+        // timeline (where the first segment starts at 0).
+        name: "HLS passthrough video keeps ffmpeg's decode times on the file's timeline",
         before: `                        mp4.updateBaseMediaDecodeTime({
                             buffer: mediaSegmentBuffer,
                             baseMediaDecodeTime: sidx.earliestPresentationTime,
                             trackId: 1,
                             boxes: boxes
                         }), duration += `,
-        after: `                        convertOptions.video && convertOptions.video.transcode && mp4.updateBaseMediaDecodeTime({
+        after: `                        convertOptions.video && convertOptions.video.transcode ? mp4.updateBaseMediaDecodeTime({
                             buffer: mediaSegmentBuffer,
                             baseMediaDecodeTime: sidx.earliestPresentationTime,
                             trackId: 1,
                             boxes: boxes
-                        }), duration += `,
+                        }) : (() => {
+                            const tfdt = boxes.find((({type: type}) => "moof" === type)).boxes.find((({type: type}) => "traf" === type)).boxes.find((({type: type}) => "tfdt" === type));
+                            "number" != typeof targetConvertProcess.decodeTimeOffset && (targetConvertProcess.decodeTimeOffset = Math.round(targetMediaSegment.seekTime - mediaSegments.get(1).seekTime) - sidx.earliestPresentationTime);
+                            mp4.updateBaseMediaDecodeTime({
+                                buffer: mediaSegmentBuffer,
+                                baseMediaDecodeTime: tfdt.baseMediaDecodeTime + targetConvertProcess.decodeTimeOffset,
+                                trackId: 1,
+                                boxes: boxes
+                            });
+                        })(), duration += `,
     },
 ];
 

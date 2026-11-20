@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-stremio
 category: media
 name: Stremio
-version: "1.0.10"
+version: "1.0.11"
 tagline: The latest Stremio web app with its streaming server, hosted at home
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-stremio/icon.svg
 description: >-
@@ -24,7 +24,7 @@ support: https://github.com/vytorrennan/my-umbrel-apps/issues
 port: 11471
 gallery: []
 releaseNotes: >-
-  - Subtitle tags like {\i1} and {\b1} now show as italic and bold, tag-only lines no longer add empty lines, and overlapping tags render correctly (matches the fix proposed upstream to Stremio)
+  - Fixes embedded subtitles not showing when playback starts partway through an episode (resume, seek or reload)
 dependencies: []
 path: ""
 defaultUsername: ""

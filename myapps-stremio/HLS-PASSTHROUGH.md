@@ -1,6 +1,6 @@
 # Audio language menu and HLS passthrough
 
-Four fixes that work together so files with several audio tracks get an audio
+Five fixes that work together so files with several audio tracks get an audio
 language menu and still play smoothly on the Umbrel's CPU.
 
 ## How the player picks a playback mode
@@ -160,6 +160,40 @@ docker run --rm vytor/stremio:<tag> sh -c 'grep -o "maxBufferHole:[^,]*" -r /srv
 
 It should print `maxBufferHole:.5` (the `.1` next to it is hls.js's own
 default and isn't used).
+
+## 5. Embedded subtitles vanished after a seek (app 1.0.11)
+
+Embedded subtitle tracks showed nothing when playback started partway
+through an episode (a resume, a seek, or a reload), in every language and
+with any torrent. This also happens with the unpatched v4.22.5 server.
+
+After a seek the server starts a new ffmpeg at that point. ffmpeg's video
+decode times (`tfdt`) then count from the seek point, not from the start of
+the file, and so did the server's old rewrite to the `sidx` earliest
+presentation time. hls.js still plays the video: it sees the jump and takes
+the difference as the stream's start time (`initPTS`). But the server's
+WebVTT segments use the file's own times and have no `X-TIMESTAMP-MAP`, so
+hls.js shifts every cue by `-initPTS`. Started at 50 s, a test file got
+`initPTS` -40 s, and the cue for 0:38 was scheduled at 1:18.
+
+Fix: `patch-server.js` gives each ffmpeg run one fixed offset, taken from
+its first fragment: the segment's start time on the file's timeline minus
+that fragment's earliest presentation time. Every fragment of that run gets
+ffmpeg's decode time plus this offset. A run started at the beginning gets
+an offset of 0, so nothing changes there. Decode times stay continuous
+within a run, so fix 3 still holds.
+
+Checked with the bundled hls.js (1.5.4-patch2) in Chromium, with a VP9 test
+file whose subtitle cues are labelled with their own times:
+
+| | v4.22.5 | 1.0.11 |
+|---|---|---|
+| Start at 50 s | `initPTS` -40 s, cue for 0:38 at 1:18, nothing shown | `initPTS` 0, cue for 0:58 shown at 0:58 |
+| Start at 0, seek to 70 s (server restarts ffmpeg) | | `initPTS` 0, cue for 1:10 shown at 1:10 |
+
+On an open-GOP x265 test file, a run started at segment 5 begins at
+40.04 s, the segment's start, with no holes over 60 ms and no decode times
+going backwards. It lines up with a run started at 0 to within one frame.
 
 ## Reproducing
 
