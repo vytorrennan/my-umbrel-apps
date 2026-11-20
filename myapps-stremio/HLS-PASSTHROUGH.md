@@ -195,6 +195,9 @@ On an open-GOP x265 test file, a run started at segment 5 begins at
 40.04 s, the segment's start, with no holes over 60 ms and no decode times
 going backwards. It lines up with a run started at 0 to within one frame.
 
+Reported upstream as
+[Stremio/stremio-bugs#2951](https://github.com/Stremio/stremio-bugs/issues/2951).
+
 ## Reproducing
 
 Run the image with a local copy of a file and debug logging. Bind mounts
