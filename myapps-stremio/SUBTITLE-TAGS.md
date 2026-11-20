@@ -54,3 +54,21 @@ with a `{\an8}` line, an italic-tagged line and a plain line, and observe
 the `time`, `paused` and `buffering` props (the player only tracks time
 when something observes it). The `{\an8}` line should show at the top
 without the tag, and the other two at the bottom.
+
+## Overlapping built-in subtitles (app 1.0.12)
+
+Built-in subtitle tracks in HLS mode are drawn by the browser. stremio-video
+placed every cue by percentage (`snapToLines = false`,
+`line = 100 - offset`) to apply the "Vertical Position" setting. When
+several cues show at once, such as a sign and a line of dialogue, Chrome 157
+draws such cues on top of each other. Chrome 158 stacks them.
+
+`patch-web.js` now places built-in cues by line (`snapToLines = true`). The
+browser stacks those itself. The vertical position becomes a number of
+lines from the bottom, worked out from the subtitle font size and the video
+height, and is redone when the window is resized.
+
+Checked in the real web app in Chrome 157 with a test file holding the
+8:02 scene of *Dead Mount Death Play* (three poster signs and a dialogue
+line at once), vertical position 20%: before, the dialogue was drawn over
+the "Starring" sign; after, all lines are stacked and readable.

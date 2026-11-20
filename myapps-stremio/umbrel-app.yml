@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-stremio
 category: media
 name: Stremio
-version: "1.0.11"
+version: "1.0.12"
 tagline: The latest Stremio web app with its streaming server, hosted at home
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-stremio/icon.svg
 description: >-
@@ -24,7 +24,7 @@ support: https://github.com/vytorrennan/my-umbrel-apps/issues
 port: 11471
 gallery: []
 releaseNotes: >-
-  - Fixes embedded subtitles not showing when playback starts partway through an episode (resume, seek or reload)
+  - Built-in subtitle lines shown at the same time (like a sign and dialogue) are stacked instead of drawn on top of each other
 dependencies: []
 path: ""
 defaultUsername: ""

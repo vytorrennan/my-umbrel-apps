@@ -156,6 +156,51 @@ function assTagsToHTML(tags, style) {
                 cuesElement.appendChild(cueNode);
                 cuesElement.appendChild(document.createElement('br'));`,
     },
+    {
+        // Built-in subtitle tracks: place cues by line instead of by
+        // percentage, so the browser stacks cues shown at the same time.
+        file: "src/HTMLVideo/HTMLVideo.js",
+        before: `    function onCueChange() {
+        Array.from(videoElement.textTracks).forEach(function(track) {
+            Array.from(track.cues || []).forEach(function(cue) {
+                cue.snapToLines = false;
+                cue.line = 100 - subtitlesOffset;
+            });
+        });
+    }`,
+        after: `    function onCueChange() {
+        // Cues placed by percentage (snapToLines false) are drawn on top of
+        // each other in Chrome 157 when several show at once. Cues placed by
+        // line are stacked, so turn the offset into a number of lines.
+        var fontSize = parseFloat(styleElement.sheet.cssRules[0].style.fontSize) || 4;
+        var lineHeight = fontSize * Math.min(window.innerWidth, window.innerHeight) / 100 * 1.15;
+        var height = videoElement.clientHeight;
+        var lines = lineHeight > 0 && height > 0 ? Math.round(subtitlesOffset / 100 * height / lineHeight) : 0;
+        Array.from(videoElement.textTracks).forEach(function(track) {
+            Array.from(track.cues || []).forEach(function(cue) {
+                cue.snapToLines = true;
+                cue.line = -1 - lines;
+            });
+        });
+    }`,
+    },
+    {
+        // The line count depends on the window size, so redo it on resize.
+        file: "src/HTMLVideo/HTMLVideo.js",
+        before: `    containerElement.appendChild(videoElement);
+`,
+        after: `    window.addEventListener('resize', onCueChange);
+    containerElement.appendChild(videoElement);
+`,
+    },
+    {
+        file: "src/HTMLVideo/HTMLVideo.js",
+        before: `                videoElement.textTracks.onchange = null;
+`,
+        after: `                videoElement.textTracks.onchange = null;
+                window.removeEventListener('resize', onCueChange);
+`,
+    },
 ];
 
 for (const { file, before, after } of patches) {
