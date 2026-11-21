@@ -42,6 +42,18 @@ raise SystemExit(1)
 PYVERSION
 }
 
+# T3 serves its backend through Tailscale on port 443 when started with
+# --tailscale-serve. After a restart, T3 can skip that setup if its first
+# `tailscale serve status` read times out, and it never repairs an empty port
+# 443. Re-apply the route here; the command is idempotent.
+ensure_tailscale_serve() {
+  if timeout 30 tailscale serve --bg --https=443 http://127.0.0.1:3773 >/dev/null; then
+    echo "[$(date -u +%FT%TZ)] [t3-autoupdate] tailscale serve on 443 -> 127.0.0.1:3773"
+  else
+    echo "[$(date -u +%FT%TZ)] [t3-autoupdate] WARNING: could not configure tailscale serve on 443"
+  fi
+}
+
 if [ "${1:-}" = "--restart-worker" ]; then
   EXPECTED="$2"
   echo "[$(date -u +%FT%TZ)] [t3-autoupdate] restarting t3; expected=$EXPECTED"
@@ -49,6 +61,9 @@ if [ "${1:-}" = "--restart-worker" ]; then
     echo "[t3-autoupdate] ERROR: supervisorctl restart failed"
     exit 1
   fi
+  # Configure the route straight after the restart, before verification, so it
+  # exists even if verification below fails.
+  ensure_tailscale_serve
   # Require two successful checks separated by six seconds, longer than the
   # observed startup failures that Supervisor briefly labelled RUNNING.
   VERIFIED=false
@@ -60,6 +75,7 @@ if [ "${1:-}" = "--restart-worker" ]; then
        curl -fsS --max-time 3 http://127.0.0.1:3773/ -o /dev/null; then
       if [ "$VERIFIED" = true ]; then
         echo "[$(date -u +%FT%TZ)] [t3-autoupdate] verified running server: $ACTIVE"
+        ensure_tailscale_serve
         exit 0
       fi
       VERIFIED=true

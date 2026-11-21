@@ -2,7 +2,7 @@ manifestVersion: 1
 id: myapps-agent-hub
 category: developer
 name: Agent Hub
-version: "1.0.18"
+version: "1.0.19"
 tagline: Self-hosted AI coding agent servers (T3 Code, OpenCode, Codex)
 icon: https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/icon.svg
 description: >-
@@ -33,6 +33,7 @@ gallery:
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/2.png
   - https://raw.githubusercontent.com/vytorrennan/my-umbrel-apps/main/myapps-agent-hub/screenshots/3.png
 releaseNotes: >-
+  - Re-apply the T3 Tailscale Serve route on port 443 after automatic T3 updates restart the server
   - Link shared ~/.agents/skills into Claude Code automatically with the skills-sync service
   - Keep Claude-only skills in ~/.claude/skills private and leave Claude's synced skills untouched
   - Choose which shared skills Claude skips in ~/.config/skills-sync/ignore
