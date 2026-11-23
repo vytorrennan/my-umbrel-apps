@@ -1,5 +1,6 @@
 manifestVersion: 1
 id: myapps-power-tune
+disabled: true
 category: automation
 name: Power Tune
 version: "1.0.8"

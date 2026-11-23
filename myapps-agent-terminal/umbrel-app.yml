@@ -1,5 +1,6 @@
 manifestVersion: 1
 id: myapps-agent-terminal
+disabled: true
 category: developer
 name: Agent Terminal
 version: "1.0.0"
