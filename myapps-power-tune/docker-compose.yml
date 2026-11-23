@@ -6,5 +6,3 @@ services:
     privileged: true
     pid: host
     stop_grace_period: 5s
-    environment:
-      - CHECK_INTERVAL=300

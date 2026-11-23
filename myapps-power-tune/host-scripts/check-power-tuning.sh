@@ -15,12 +15,130 @@ echo
 #
 # CPU Governor
 #
-gov=$(cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null)
+govs=$(cat /sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_governor 2>/dev/null | sort -u | tr '\n' ' ' | sed 's/ $//')
 
-if [[ "$gov" == "powersave" ]]; then
-    ok "CPU governor: $gov"
+if [[ "$govs" == "schedutil" ]]; then
+    ok "CPU governor: $govs (all CPUs)"
 else
-    fail "CPU governor: $gov"
+    fail "CPU governor: ${govs:-unknown} (expected schedutil)"
+fi
+
+#
+# CPU Max Frequency Limit
+#
+capped_cpus=0
+for cpu in /sys/devices/system/cpu/cpu[0-9]*/cpufreq; do
+    smax=$(cat "$cpu/scaling_max_freq" 2>/dev/null)
+    hwmax=$(cat "$cpu/cpuinfo_max_freq" 2>/dev/null)
+    if [[ -n "$smax" && -n "$hwmax" && "$smax" -lt "$hwmax" ]]; then
+        capped_cpus=$((capped_cpus + 1))
+    fi
+done
+
+if [[ "$capped_cpus" -eq 0 ]]; then
+    ok "CPU scaling_max_freq: uncapped on all CPUs"
+else
+    warn "CPU scaling_max_freq: $capped_cpus CPU(s) capped below hardware max"
+fi
+
+#
+# Intel Turbo Boost
+#
+if [[ -r /sys/devices/system/cpu/intel_pstate/no_turbo ]]; then
+    no_turbo=$(cat /sys/devices/system/cpu/intel_pstate/no_turbo)
+    if [[ "$no_turbo" == "1" ]]; then
+        ok "Intel Turbo Boost: disabled (no_turbo=1)"
+    else
+        warn "Intel Turbo Boost: enabled (no_turbo=$no_turbo)"
+    fi
+fi
+
+#
+# Display Backlight & DPMS
+#
+for bl in /sys/class/backlight/*; do
+    [[ -d "$bl" ]] || continue
+    bright=$(cat "$bl/brightness" 2>/dev/null)
+    if [[ "$bright" == "0" ]]; then
+        ok "Backlight ($(basename "$bl")): off (0)"
+    else
+        warn "Backlight ($(basename "$bl")): brightness=$bright"
+    fi
+done
+
+if [[ -r /sys/class/drm/card0-LVDS-1/dpms ]]; then
+    lvds_dpms=$(cat /sys/class/drm/card0-LVDS-1/dpms 2>/dev/null)
+    if [[ "$lvds_dpms" == "Off" ]]; then
+        ok "LVDS-1 display DPMS: Off"
+    else
+        warn "LVDS-1 display DPMS: $lvds_dpms"
+    fi
+fi
+
+#
+# Unused PCI Devices (Wi-Fi, Audio, SD Card Reader)
+#
+for entry in "0000:03:00.0|Wi-Fi (BCM4313)" "0000:00:1b.0|HD Audio" "0000:02:00.1|SD Card Reader"; do
+    dev="${entry%%|*}"
+    label="${entry#*|}"
+    if [[ -r "/sys/bus/pci/devices/$dev/power/runtime_status" ]]; then
+        rstat=$(cat "/sys/bus/pci/devices/$dev/power/runtime_status")
+        if [[ "$rstat" == "suspended" ]]; then
+            ok "PCI $label ($dev): suspended"
+        else
+            warn "PCI $label ($dev): $rstat"
+        fi
+    fi
+done
+
+#
+# Optical Drive (sr0) Runtime PM
+#
+if [[ -r /sys/block/sr0/device/power/control ]]; then
+    sr0_ctrl=$(cat /sys/block/sr0/device/power/control 2>/dev/null)
+    sr0_stat=$(cat /sys/block/sr0/device/power/runtime_status 2>/dev/null)
+    if [[ "$sr0_ctrl" == "auto" ]]; then
+        ok "Optical drive (sr0) runtime PM: auto ($sr0_stat)"
+    else
+        warn "Optical drive (sr0) runtime PM: $sr0_ctrl ($sr0_stat)"
+    fi
+fi
+
+#
+# Unused Host Services
+#
+for svc in ModemManager.service wpa_supplicant.service; do
+    if systemctl is-active --quiet "$svc" 2>/dev/null; then
+        warn "Service $svc: running"
+    else
+        ok "Service $svc: stopped"
+    fi
+done
+
+#
+# SATA ALPM (check populated SATA ports; empty AHCI ports stay keep_firmware_settings)
+#
+sata_active=0
+sata_low=0
+for hostdir in /sys/class/scsi_host/host*; do
+    policy="$hostdir/link_power_management_policy"
+    [[ -r "$policy" ]] || continue
+    # Only count hosts that have a target/device attached
+    hostnum=$(basename "$hostdir" | sed 's/host//')
+    if compgen -G "/sys/class/scsi_device/${hostnum}:*" >/dev/null; then
+        sata_active=$((sata_active + 1))
+        val=$(cat "$policy" 2>/dev/null)
+        if [[ "$val" == "med_power_with_dipm" || "$val" == "min_power" ]]; then
+            sata_low=$((sata_low + 1))
+        fi
+    fi
+done
+if [[ "$sata_active" -gt 0 ]]; then
+    if [[ "$sata_low" -eq "$sata_active" ]]; then
+        ok "SATA ALPM: low-power on all $sata_active populated port(s)"
+    else
+        warn "SATA ALPM: low-power on $sata_low/$sata_active populated port(s)"
+    fi
 fi
 
 #
@@ -48,8 +166,9 @@ fi
 # Wi-Fi
 #
 if command -v rfkill >/dev/null; then
-    if rfkill list wifi 2>/dev/null | grep -q "Soft blocked: yes"; then
-        ok "Wi-Fi blocked"
+    wifi_status=$(rfkill list wifi 2>/dev/null)
+    if [[ -z "$wifi_status" ]] || ! echo "$wifi_status" | grep -q "Soft blocked: no"; then
+        ok "Wi-Fi blocked/unloaded"
     else
         warn "Wi-Fi enabled"
     fi
@@ -81,17 +200,11 @@ if command -v powertop >/dev/null; then
 fi
 
 #
-# CPU Frequency
+# CPU Frequency (informational)
 #
 freq=$(awk '/cpu MHz/ {sum+=$4;n++} END{printf "%.0f",sum/n}' /proc/cpuinfo)
-
 echo
-
-if [[ "$freq" -lt 1500 ]]; then
-    ok "Average CPU frequency: ${freq} MHz"
-else
-    warn "Average CPU frequency: ${freq} MHz"
-fi
+ok "Current average CPU frequency: ${freq} MHz"
 
 #
 # Lid configuration
@@ -113,7 +226,7 @@ done
 echo
 if command -v turbostat >/dev/null; then
     echo "Current C-State summary:"
-    sudo turbostat --quiet --show CPU%c1,CPU%c3,CPU%c6,CPU%c7,PkgWatt --interval 5 --num_iterations 1
+    sudo turbostat --quiet --show Busy%,Bzy_MHz,CPU%c1,CPU%c3,CPU%c6,CPU%c7,Pkg%pc2,Pkg%pc3,Pkg%pc6,Pkg%pc7,PkgWatt --interval 5 --num_iterations 1
 fi
 
 echo
