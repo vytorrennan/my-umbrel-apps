@@ -14,7 +14,7 @@ services:
       - "3773:3773"
       - "4096:4096"
     volumes:
-      - /home/umbrel/umbrel/home/Projects:/home/developer/Projects
+      - /home/umbrel/umbrel/agent-projects:/home/developer/Projects
       # Retain the whole home across image updates: Claude .claude + .claude.json,
       # Codex .codex, OpenCode .config/.local/share, Gemini/Antigravity,
       # T3 .t3 and shared .agents skills, including their saved login state.
@@ -42,7 +42,7 @@ services:
       - DOCKER_TLS_CERTDIR=
     volumes:
       - dind-data:/var/lib/docker
-      - /home/umbrel/umbrel/home/Projects:/home/developer/Projects
+      - /home/umbrel/umbrel/agent-projects:/home/developer/Projects
     dns:
       - 1.1.1.1
       - 8.8.8.8

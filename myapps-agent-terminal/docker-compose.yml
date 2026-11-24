@@ -6,7 +6,7 @@ services:
     ports:
       - "7681:7681"
     volumes:
-      - /home/umbrel/umbrel/home/Projects:/home/developer/Projects
+      - /home/umbrel/umbrel/agent-projects:/home/developer/Projects
       - agent-terminal-data:/home/developer
     environment:
       - TERM=xterm-256color
